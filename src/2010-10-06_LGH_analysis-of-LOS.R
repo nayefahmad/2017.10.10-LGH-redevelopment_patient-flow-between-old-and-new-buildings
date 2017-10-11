@@ -68,7 +68,7 @@ p1_hist <-
       labs(x="LOS in days", 
            y="Number of cases", 
            title="Distribution of LOS in LGH 4E", 
-           subtitle="From 2017-01-01 onwards \nMean = 8.31 days; Median = 4 days", 
+           subtitle="From 2014-04-01 onwards \nMedian = 5 days; Mean = 11.1 days; ", 
            caption= "\nData source: DSDW ADTCMart; extraction date: 2017-10-10 ") + 
       geom_vline(xintercept = avg.los, 
                  col="red") + 

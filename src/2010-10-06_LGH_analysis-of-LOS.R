@@ -39,7 +39,10 @@ split.losdata.4e <- split(losdata.4e, losdata.4e$id)
 # apply los.fn, then combine results into a vector: 
 # lapply(split.losdata, los.fn)  %>% unlist # %>% unname %>% str
 
-los.4e <- lapply(split.losdata.4e, los.fn)  %>% unlist %>% unname 
+los.4e <- 
+      lapply(split.losdata.4e, los.fn, 
+                 nursingunit = "4E")  %>%  # nursingunit is passed to los.fn
+      unlist %>% unname 
 str(los.4e)
 summary(los.4e)
 
@@ -64,17 +67,20 @@ split.losdata.6e <- split(losdata.6e, losdata.6e$id)
 # apply los.fn, then combine results into a vector: 
 # lapply(split.losdata, los.fn)  %>% unlist # %>% unname %>% str
 
-los.6e <- lapply(split.losdata.6e, los.fn)  %>% unlist %>% unname 
+los.6e <- 
+      lapply(split.losdata.6e, los.fn, 
+             nursingunit = "6E")  %>% 
+      unlist %>% unname 
 str(los.6e)
 summary(los.6e)
 
 # what is the average LOS? -------------
-avg.los.6e <- mean(los.4e, na.rm = TRUE) %>% print 
-median.los.6e <- quantile(los.4e, probs = .50, na.rm=TRUE) %>% print
-percentile.90.los.6e <- quantile(los.4e, probs = .90, na.rm=TRUE) %>% print
+avg.los.6e <- mean(los.6e, na.rm = TRUE) %>% print 
+median.los.6e <- quantile(los.6e, probs = .50, na.rm=TRUE) %>% print
+percentile.90.los.6e <- quantile(los.6e, probs = .90, na.rm=TRUE) %>% print
 
-los.4e.df <- as.data.frame(los.4e)  # easier to work with in ggplot 
-str(los.4e.df)
+los.6e.df <- as.data.frame(los.6e)  # easier to work with in ggplot 
+str(los.6e.df)
 
 
 
@@ -83,7 +89,7 @@ str(los.4e.df)
 # Plotting with ggplot: ------------
 # ******************************
 
-p1_hist <- 
+p1_hist.4e <- 
       ggplot(los.4e.df, 
              aes(x=los.4e)) + 
       geom_histogram(stat="bin", 
@@ -102,14 +108,44 @@ p1_hist <-
            subtitle="From 2014-04-01 onwards \nMedian = 5 days; Mean = 11.1 days; ", 
            caption= "\nData source: DSDW ADTCMart; extraction date: 2017-10-10 ") + 
       
-      geom_vline(xintercept = avg.los, 
+      geom_vline(xintercept = avg.los.4e, 
                  col="red") + 
       
-      geom_vline(xintercept = median.los, 
+      geom_vline(xintercept = median.los.4e, 
                  col="red", 
                  linetype=2) + 
       
-      theme_classic(base_size = 16); p1_hist
+      theme_classic(base_size = 16); p1_hist.4e
+
+
+
+p2_hist.6e <- 
+      ggplot(los.6e.df, 
+             aes(x=los.6e)) + 
+      geom_histogram(stat="bin", 
+                     binwidth = 1, 
+                     col="black", 
+                     fill="deepskyblue") + 
+      
+      scale_x_continuous(limits=c(-1,85), 
+                         breaks=seq(0,85,5), 
+                         expand=c(0,0)) + 
+      scale_y_continuous(expand=c(0,0)) + 
+      
+      labs(x="LOS in days", 
+           y="Number of cases", 
+           title="Distribution of LOS in LGH 6E", 
+           subtitle="From 2014-04-01 onwards \nMedian = 3 days; Mean = 6.7 days; ", 
+           caption= "\nData source: DSDW ADTCMart; extraction date: 2017-10-10 ") + 
+      
+      geom_vline(xintercept = avg.los.6e, 
+                 col="red") + 
+      
+      geom_vline(xintercept = median.los.6e, 
+                 col="red", 
+                 linetype=2) + 
+      
+      theme_classic(base_size = 16); p2_hist.6e
 
 
 

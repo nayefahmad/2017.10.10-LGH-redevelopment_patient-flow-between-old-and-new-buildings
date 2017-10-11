@@ -29,13 +29,13 @@ source("los_function.R")
 
 
 # split data by unique encounter: 
-split.losdata <- split(losdata, losdata$id)
+split.losdata.4e <- split(losdata.4e, losdata.4e$id)
 # str(split.losdata)
 
 # apply los.fn, then combine results into a vector: 
 # lapply(split.losdata, los.fn)  %>% unlist # %>% unname %>% str
 
-los.4e <- lapply(split.losdata, los.fn)  %>% unlist %>% unname 
+los.4e <- lapply(split.losdata.4e, los.fn)  %>% unlist %>% unname 
 str(los.4e)
 summary(los.4e)
 

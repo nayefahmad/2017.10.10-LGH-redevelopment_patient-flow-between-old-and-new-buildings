@@ -14,7 +14,12 @@ library("tidyr")
 #          na.strings = "NULL", 
 #          stringsAsFactors = TRUE) 
 
-losdata.4e <- read.csv("\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.04 LGH redevelopment - patient flow between old and new buildings/results/output from src/2017-10-10_LGH_4E-LOS.csv", 
+
+#********************************
+# Cleaning 4E data: -----------
+#********************************
+
+losdata.4e <- read.csv("\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.10 LGH redevelopment - patient flow between old and new buildings/results/output from src/2017-10-10_LGH_4E-LOS.csv", 
                     na.strings = "NULL", 
                     stringsAsFactors = TRUE) 
 
@@ -43,6 +48,44 @@ losdata.4e <-
 
 # save reformatted data: ----------------
 write.csv(losdata.4e, file="\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.04 LGH redevelopment - patient flow between old and new buildings/results/output from src/2017-10-10_LGH_4E-LOS-reformatted.csv", 
+          row.names = FALSE)
+
+
+
+
+#********************************
+# Cleaning 6E data: -----------
+#********************************
+
+losdata.6e <- read.csv("\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.10 LGH redevelopment - patient flow between old and new buildings/results/output from src/2017-10-10_LGH_6E-LOS.csv", 
+                       na.strings = "NULL", 
+                       stringsAsFactors = TRUE) 
+
+names(losdata.6e) <- tolower(names(losdata.6e))
+
+losdata.6e <- 
+      mutate(losdata.6e, 
+             admissionnursingunitcode = as.factor(admissionnursingunitcode), 
+             adjustedadmissiondate = mdy(adjustedadmissiondate), 
+             adjusteddischargedate = mdy(adjusteddischargedate), 
+             transferdate = mdy(transferdate)) %>% 
+      rename(ad.unitcode = admissionnursingunitcode,
+             from.unit = fromnursingunitcode, 
+             to.unit = tonursingunitcode, 
+             ad.date = adjustedadmissiondate, 
+             dis.date = adjusteddischargedate, 
+             t.date = transferdate) %>% 
+      unite(col = id, 
+            c(a.continuumid, accountnumber), 
+            sep = "-") %>% 
+      mutate(id = as.factor(id))
+
+# str(losdata.6e)
+# summary(losdata.6e)
+# head(losdata.6e)
+
+# save reformatted data: ----------------
+write.csv(losdata.6e, file="\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.10 LGH redevelopment - patient flow between old and new buildings/results/output from src/2017-10-10_LGH_6E-LOS-reformatted.csv", 
           row.names = FALSE)
 
       

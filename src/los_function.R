@@ -22,8 +22,10 @@
 
 # function definition: ----------------
 
-los.fn <- function(df){
-      # input: dataframe with all rows of single patient-account combo 
+los.fn <- function(df, nursingunit){
+      # inputs:
+            # dataframe with all rows of single patient-account combo 
+            # nursingunitcode as character string 
       # output: LOS in 4E in days 
       
       require("dplyr")
@@ -35,20 +37,20 @@ los.fn <- function(df){
                     ad.date, t.date)
       # print(df)
       # df$ad.unitcode
-      if (df$ad.unitcode[1] == "4E" && is.na(df$t.date[1] == TRUE)) {
+      if (df$ad.unitcode[1] == nursingunit && is.na(df$t.date[1] == TRUE)) {
             # patient type: ad and dis from 4E, no transfers 
             # print("branch1")
             return(df$dis.date - df$ad.date)
             
-      } else if (df$ad.unitcode[1] == "4E" && df$to.unit != "4E"){
+      } else if (df$ad.unitcode[1] == nursingunit && df$to.unit != nursingunit){
             # patient type: admit to 4E, transferred out of 4E, 
             # no internal transfers in 4E 
             # print("branch2")
             return(df$t.date[1] - df$ad.date[1])  
             
-      } else if (df$ad.unitcode[1] == "4E" && df$to.unit == "4E"){
+      } else if (df$ad.unitcode[1] == nursingunit && df$to.unit == nursingunit){
             # patient type: admit to 4E, internal transfer in 4E
-            index <- df$to.unit != "4E"  
+            index <- df$to.unit != nursingunit  
             # ^ logical vec to find first transfer out of 4E 
             # print("branch3")
             # print(c("index=", index))
@@ -61,9 +63,9 @@ los.fn <- function(df){
                   return(df$dis.date[1] - df$ad.date[1])
             }
             
-      } else if (df$ad.unitcode[1] != "4E" && df$to.unit == "4E") {
+      } else if (df$ad.unitcode[1] != nursingunit && df$to.unit == nursingunit) {
             # patient type: admit to other, transferred to 4E 
-            index <- df$to.unit != "4E"  
+            index <- df$to.unit != nursingunit  
             # print("branch4") 
             # print(c("index=", index))
             

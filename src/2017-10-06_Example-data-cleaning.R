@@ -13,7 +13,6 @@ library("tidyr")
 
 #**********************************
 # TODO: 
-# > reneame vars, delele redundant code 
 #**********************************
 
 
@@ -71,4 +70,26 @@ losdata.6e <- clean.los(losdata.6e)
 write.csv(losdata.6e, file="\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.10 LGH redevelopment - patient flow between old and new buildings/results/output from src/2017-10-10_LGH_6E-LOS-reformatted.csv", 
           row.names = FALSE)
 
-      
+
+
+
+
+#********************************
+# Cleaning 6W data: -----------
+#********************************
+
+losdata.6w <- read.csv("\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.10 LGH redevelopment - patient flow between old and new buildings/results/output from src/2017-10-10_LGH_6W-LOS.csv", 
+                       na.strings = "NULL", 
+                       stringsAsFactors = TRUE) 
+
+names(losdata.6w) <- tolower(names(losdata.6w))
+
+losdata.6w <- clean.los(losdata.6w)
+
+# str(losdata.6w)
+# summary(losdata.6w)
+# head(losdata.6w)
+
+# save reformatted data: ----------------
+write.csv(losdata.6w, file="\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.10 LGH redevelopment - patient flow between old and new buildings/results/output from src/2017-10-10_LGH_6W-LOS-reformatted.csv", 
+          row.names = FALSE)

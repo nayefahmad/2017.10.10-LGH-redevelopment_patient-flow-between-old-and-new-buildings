@@ -12,8 +12,7 @@ library("dplyr")
 
 # todo: -------------------
 # > why 58 NAs for 4E data? 
-# > update mean, median, title, date on graph 
-# > rearrange median and mean in subtitle 
+# > use aggregate/summarize to get mean, median, 90th percentile 
 # ******************************
 
 
@@ -83,12 +82,40 @@ los.6e.df <- as.data.frame(los.6e)  # easier to work with in ggplot
 str(los.6e.df)
 
 
+# ******************************
+# Analysis for 6W ---------------
+# ******************************
+
+# split data by unique encounter: 
+split.losdata.6w <- split(losdata.6w, losdata.6w$id)
+# str(split.losdata.6w)
+
+# apply los.fn, then combine results into a vector: 
+# lapply(split.losdata, los.fn)  %>% unlist # %>% unname %>% str
+
+los.6w <- 
+      lapply(split.losdata.6w, los.fn, 
+             nursingunit = "6W")  %>% 
+      unlist %>% unname 
+str(los.6w)
+summary(los.6w)
+
+# what is the average LOS? -------------
+avg.los.6w <- mean(los.6w, na.rm = TRUE) %>% print 
+median.los.6w <- quantile(los.6w, probs = .50, na.rm=TRUE) %>% print
+percentile.90.los.6w <- quantile(los.6w, probs = .90, na.rm=TRUE) %>% print
+
+los.6w.df <- as.data.frame(los.6w)  # easier to work with in ggplot 
+str(los.6w.df)
+
+
 
 
 # ******************************
 # Plotting with ggplot: ------------
 # ******************************
 
+# > Graph for 4E --------
 p1_hist.4e <- 
       ggplot(los.4e.df, 
              aes(x=los.4e)) + 
@@ -118,7 +145,7 @@ p1_hist.4e <-
       theme_classic(base_size = 16); p1_hist.4e
 
 
-
+# > Graph for 6E --------
 p2_hist.6e <- 
       ggplot(los.6e.df, 
              aes(x=los.6e)) + 
@@ -148,13 +175,45 @@ p2_hist.6e <-
       theme_classic(base_size = 16); p2_hist.6e
 
 
+# > Plotting 6W: --------------
+p3_hist.6w <- 
+      ggplot(los.6w.df, 
+             aes(x=los.6w)) + 
+      geom_histogram(stat="bin", 
+                     binwidth = 1, 
+                     col="black", 
+                     fill="deepskyblue") + 
+      
+      scale_x_continuous(limits=c(-1,85), 
+                         breaks=seq(0,85,5), 
+                         expand=c(0,0)) + 
+      scale_y_continuous(expand=c(0,0)) + 
+      
+      labs(x="LOS in days", 
+           y="Number of cases", 
+           title="Distribution of LOS in LGH 6W", 
+           subtitle="From 2014-04-01 onwards \nMedian = 3 days; Mean = 8.6 days; ", 
+           caption= "\nData source: DSDW ADTCMart; extraction date: 2017-10-11 ") + 
+      
+      geom_vline(xintercept = avg.los.6w, 
+                 col="red") + 
+      
+      geom_vline(xintercept = median.los.6w, 
+                 col="red", 
+                 linetype=2) + 
+      
+      theme_classic(base_size = 16); p3_hist.6w
+
+
 
 # *******************************************
 # Save outputs: ---------------
 
 pdf(file="\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.10 LGH redevelopment - patient flow between old and new buildings/results/output from src/los-histogram-2015-2017.pdf", 
       height= 8.5, width = 14) 
-p1_hist
+p1_hist.4e
+p2_hist.6e
+p3_hist.6w
 dev.off()
 
 

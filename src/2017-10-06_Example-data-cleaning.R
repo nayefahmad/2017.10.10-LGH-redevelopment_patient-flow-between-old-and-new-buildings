@@ -93,3 +93,29 @@ losdata.6w <- clean.los(losdata.6w)
 # save reformatted data: ----------------
 write.csv(losdata.6w, file="\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.10 LGH redevelopment - patient flow between old and new buildings/results/output from src/2017-10-10_LGH_6W-LOS-reformatted.csv", 
           row.names = FALSE)
+
+
+
+
+#********************************
+# Cleaning 4W data: -----------
+#********************************
+
+# note: input csv may have to be processed manually first: empty rows 
+#     after SSLTC rows. 
+
+losdata.4w <- read.csv("\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.10 LGH redevelopment - patient flow between old and new buildings/results/output from src/2017-10-10_LGH_4W-LOS.csv", 
+                       na.strings = "NULL", 
+                       stringsAsFactors = TRUE) 
+
+names(losdata.4w) <- tolower(names(losdata.4w))
+
+losdata.4w <- clean.los(losdata.4w)
+
+# str(losdata.4w)
+# summary(losdata.4w)
+# head(losdata.4w)
+
+# save reformatted data: ----------------
+write.csv(losdata.4w, file="\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.10 LGH redevelopment - patient flow between old and new buildings/results/output from src/2017-10-10_LGH_4W-LOS-reformatted.csv", 
+          row.names = FALSE)

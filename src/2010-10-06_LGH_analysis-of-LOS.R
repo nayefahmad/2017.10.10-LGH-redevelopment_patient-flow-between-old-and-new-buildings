@@ -12,7 +12,6 @@ library("dplyr")
 
 # Todo: -------------------
 # > why 58 NAs for 4E data? 
-# > use aggregate/summarize to get mean, median, 90th percentile 
 # ******************************
 
 
@@ -56,6 +55,36 @@ summary.4e <-
           x90th.perc=quantile(los.4e, probs = .90, na.rm=TRUE))
 
 table.4e <- table(los.4e) %>% as.data.frame
+
+
+# ******************************
+# Analysis for 4W ---------------
+# ******************************
+
+# split data by unique encounter: 
+split.losdata.4w <- split(losdata.4w, losdata.4w$id)
+
+# apply los.fn, then combine results into a vector: 
+los.4w <- 
+      lapply(split.losdata.4w, los.fn, 
+             nursingunit = "4W")  %>%  # nursingunit is passed to los.fn
+      unlist %>% unname 
+str(los.4w)
+summary(los.4w)
+
+
+los.4w.df <- as.data.frame(los.4w)  # easier to work with in ggplot 
+str(los.4w.df)
+
+# tables of results: 
+summary.4w <- 
+      summarise(los.4w.df,
+                unit="4W", 
+                mean=mean(los.4w, na.rm=TRUE), 
+                median=quantile(los.4w, probs = .50, na.rm=TRUE), 
+                x90th.perc=quantile(los.4w, probs = .90, na.rm=TRUE))
+
+table.4w <- table(los.4w) %>% as.data.frame
 
 
 # ******************************
@@ -148,18 +177,49 @@ p1_hist.4e <-
            subtitle="From 2014-04-01 onwards \nMedian = 5 days; Mean = 11.1 days; ", 
            caption= "\nData source: DSDW ADTCMart; extraction date: 2017-10-10 ") + 
       
-      geom_vline(xintercept = avg.los.4e, 
+      geom_vline(xintercept = summary.4e[,2], 
                  col="red") + 
       
-      geom_vline(xintercept = median.los.4e, 
+      geom_vline(xintercept = summary.4e[,3], 
                  col="red", 
                  linetype=2) + 
       
       theme_classic(base_size = 16); p1_hist.4e
 
 
+# > Graph for 4W --------
+p2_hist.4w <- 
+      ggplot(los.4w.df, 
+             aes(x=los.4w)) + 
+      geom_histogram(stat="bin", 
+                     binwidth = 1, 
+                     col="black", 
+                     fill="deepskyblue") + 
+      
+      scale_x_continuous(limits=c(-1,85), 
+                         breaks=seq(0,85,5), 
+                         expand=c(0,0)) + 
+      scale_y_continuous(limits=c(0,200), 
+                         expand=c(0,0)) + 
+      
+      labs(x="LOS in days", 
+           y="Number of cases", 
+           title="Distribution of LOS in LGH 4W", 
+           subtitle="From 2014-04-01 onwards \nMedian = 19 days; Mean = 25.4 days; ", 
+           caption= "\nData source: DSDW ADTCMart; extraction date: 2017-10-11 ") + 
+      
+      geom_vline(xintercept = summary.4w[,2], 
+                 col="red") + 
+      
+      geom_vline(xintercept = summary.4w[,3], 
+                 col="red", 
+                 linetype=2) + 
+      
+      theme_classic(base_size = 16); p2_hist.4w
+
+
 # > Graph for 6E --------
-p2_hist.6e <- 
+p3_hist.6e <- 
       ggplot(los.6e.df, 
              aes(x=los.6e)) + 
       geom_histogram(stat="bin", 
@@ -178,18 +238,18 @@ p2_hist.6e <-
            subtitle="From 2014-04-01 onwards \nMedian = 3 days; Mean = 6.7 days; ", 
            caption= "\nData source: DSDW ADTCMart; extraction date: 2017-10-10 ") + 
       
-      geom_vline(xintercept = avg.los.6e, 
+      geom_vline(xintercept = summary.6e[,2], 
                  col="red") + 
       
-      geom_vline(xintercept = median.los.6e, 
+      geom_vline(xintercept = summary.6e[,3], 
                  col="red", 
                  linetype=2) + 
       
-      theme_classic(base_size = 16); p2_hist.6e
+      theme_classic(base_size = 16); p3_hist.6e
 
 
-# > Plotting 6W: --------------
-p3_hist.6w <- 
+# > Graph for 6W: --------------
+p4_hist.6w <- 
       ggplot(los.6w.df, 
              aes(x=los.6w)) + 
       geom_histogram(stat="bin", 
@@ -208,18 +268,20 @@ p3_hist.6w <-
            subtitle="From 2014-04-01 onwards \nMedian = 3 days; Mean = 8.6 days; ", 
            caption= "\nData source: DSDW ADTCMart; extraction date: 2017-10-11 ") + 
       
-      geom_vline(xintercept = avg.los.6w, 
+      geom_vline(xintercept = summary.6w[,2], 
                  col="red") + 
       
-      geom_vline(xintercept = median.los.6w, 
+      geom_vline(xintercept = summary.6w[,3], 
                  col="red", 
                  linetype=2) + 
       
-      theme_classic(base_size = 16); p3_hist.6w
+      theme_classic(base_size = 16); p4_hist.6w
 
 
 
 # *******************************************
+
+
 
 
 # Save outputs: ---------------
@@ -227,12 +289,14 @@ p3_hist.6w <-
 pdf(file="\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.10 LGH redevelopment - patient flow between old and new buildings/results/output from src/los-histogram-2015-2017_2.pdf", 
       height= 8.5, width = 14) 
 p1_hist.4e
-p2_hist.6e
-p3_hist.6w
+p2_hist.4w
+p3_hist.6e
+p4_hist.6w
 dev.off()
 
 # single summary table: 
 write.csv(rbind(summary.4e, 
+                summary.4w, 
                 summary.6e, 
                 summary.6w),
           file="\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.10 LGH redevelopment - patient flow between old and new buildings/results/output from src/2017-10-11_LGH_summary-of-LOS.csv", 
@@ -242,6 +306,11 @@ write.csv(rbind(summary.4e,
 # histogram data, 4E: 
 write.csv(table.4e, file="\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.10 LGH redevelopment - patient flow between old and new buildings/results/output from src/2017-10-11_LGH_histogram-table_4E.csv", 
           row.names = FALSE)
+
+# histogram data, 4W: 
+write.csv(table.4w, file="\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.10 LGH redevelopment - patient flow between old and new buildings/results/output from src/2017-10-11_LGH_histogram-table_4W.csv", 
+          row.names = FALSE)
+
 
 # histogram data, 6E: 
 write.csv(table.6e, file="\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.10 LGH redevelopment - patient flow between old and new buildings/results/output from src/2017-10-11_LGH_histogram-table_6E.csv", 

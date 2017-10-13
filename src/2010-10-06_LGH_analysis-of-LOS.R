@@ -10,7 +10,7 @@ library("dplyr")
 # rm(list=ls())
 
 
-# todo: -------------------
+# Todo: -------------------
 # > why 58 NAs for 4E data? 
 # > use aggregate/summarize to get mean, median, 90th percentile 
 # ******************************
@@ -36,8 +36,6 @@ split.losdata.4e <- split(losdata.4e, losdata.4e$id)
 # str(split.losdata)
 
 # apply los.fn, then combine results into a vector: 
-# lapply(split.losdata, los.fn)  %>% unlist # %>% unname %>% str
-
 los.4e <- 
       lapply(split.losdata.4e, los.fn, 
                  nursingunit = "4E")  %>%  # nursingunit is passed to los.fn
@@ -45,14 +43,19 @@ los.4e <-
 str(los.4e)
 summary(los.4e)
 
-# what is the average LOS? -------------
-avg.los.4e <- mean(los.4e, na.rm = TRUE) %>% print 
-median.los.4e <- quantile(los.4e, probs = .50, na.rm=TRUE) %>% print
-percentile.90.los.4e <- quantile(los.4e, probs = .90, na.rm=TRUE) %>% print
 
 los.4e.df <- as.data.frame(los.4e)  # easier to work with in ggplot 
 str(los.4e.df)
 
+# tables of results: 
+summary.4e <- 
+      summarise(los.4e.df,
+          unit="4E", 
+          mean=mean(los.4e, na.rm=TRUE), 
+          median=quantile(los.4e, probs = .50, na.rm=TRUE), 
+          x90th.perc=quantile(los.4e, probs = .90, na.rm=TRUE))
+
+table.4e <- table(los.4e) %>% as.data.frame
 
 
 # ******************************
@@ -64,8 +67,6 @@ split.losdata.6e <- split(losdata.6e, losdata.6e$id)
 # str(split.losdata)
 
 # apply los.fn, then combine results into a vector: 
-# lapply(split.losdata, los.fn)  %>% unlist # %>% unname %>% str
-
 los.6e <- 
       lapply(split.losdata.6e, los.fn, 
              nursingunit = "6E")  %>% 
@@ -73,13 +74,22 @@ los.6e <-
 str(los.6e)
 summary(los.6e)
 
-# what is the average LOS? -------------
-avg.los.6e <- mean(los.6e, na.rm = TRUE) %>% print 
-median.los.6e <- quantile(los.6e, probs = .50, na.rm=TRUE) %>% print
-percentile.90.los.6e <- quantile(los.6e, probs = .90, na.rm=TRUE) %>% print
 
 los.6e.df <- as.data.frame(los.6e)  # easier to work with in ggplot 
 str(los.6e.df)
+
+# tables of results: 
+summary.6e <- 
+      summarise(los.6e.df,
+                unit="6E", 
+                mean=mean(los.6e, na.rm=TRUE), 
+                median=quantile(los.6e, probs = .50, na.rm=TRUE), 
+                x90th.perc=quantile(los.6e, probs = .90, na.rm=TRUE))
+
+table.6e <- table(los.6e) %>% as.data.frame
+# note: id=6660898079-17064865 has LOS = -1 because discharge date = 2017-05-29
+#     and transfer date = 2017-05-30. Not sure why that would happen. 
+
 
 
 # ******************************
@@ -91,8 +101,6 @@ split.losdata.6w <- split(losdata.6w, losdata.6w$id)
 # str(split.losdata.6w)
 
 # apply los.fn, then combine results into a vector: 
-# lapply(split.losdata, los.fn)  %>% unlist # %>% unname %>% str
-
 los.6w <- 
       lapply(split.losdata.6w, los.fn, 
              nursingunit = "6W")  %>% 
@@ -100,14 +108,19 @@ los.6w <-
 str(los.6w)
 summary(los.6w)
 
-# what is the average LOS? -------------
-avg.los.6w <- mean(los.6w, na.rm = TRUE) %>% print 
-median.los.6w <- quantile(los.6w, probs = .50, na.rm=TRUE) %>% print
-percentile.90.los.6w <- quantile(los.6w, probs = .90, na.rm=TRUE) %>% print
 
 los.6w.df <- as.data.frame(los.6w)  # easier to work with in ggplot 
 str(los.6w.df)
 
+# tables of results: 
+summary.6w <- 
+      summarise(los.6w.df,
+                unit="6W", 
+                mean=mean(los.6w, na.rm=TRUE), 
+                median=quantile(los.6w, probs = .50, na.rm=TRUE), 
+                x90th.perc=quantile(los.6w, probs = .90, na.rm=TRUE))
+
+table.6w <- table(los.6w) %>% as.data.frame
 
 
 
@@ -207,13 +220,33 @@ p3_hist.6w <-
 
 
 # *******************************************
+
+
 # Save outputs: ---------------
 
-pdf(file="\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.10 LGH redevelopment - patient flow between old and new buildings/results/output from src/los-histogram-2015-2017.pdf", 
+pdf(file="\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.10 LGH redevelopment - patient flow between old and new buildings/results/output from src/los-histogram-2015-2017_2.pdf", 
       height= 8.5, width = 14) 
 p1_hist.4e
 p2_hist.6e
 p3_hist.6w
 dev.off()
 
+# single summary table: 
+write.csv(rbind(summary.4e, 
+                summary.6e, 
+                summary.6w),
+          file="\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.10 LGH redevelopment - patient flow between old and new buildings/results/output from src/2017-10-11_LGH_summary-of-LOS.csv", 
+          row.names = FALSE)
 
+
+# histogram data, 4E: 
+write.csv(table.4e, file="\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.10 LGH redevelopment - patient flow between old and new buildings/results/output from src/2017-10-11_LGH_histogram-table_4E.csv", 
+          row.names = FALSE)
+
+# histogram data, 6E: 
+write.csv(table.6e, file="\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.10 LGH redevelopment - patient flow between old and new buildings/results/output from src/2017-10-11_LGH_histogram-table_6E.csv", 
+          row.names = FALSE)
+
+# histogram data, 6W: 
+write.csv(table.6w, file="\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.10 LGH redevelopment - patient flow between old and new buildings/results/output from src/2017-10-11_LGH_histogram-table_6W.csv", 
+          row.names = FALSE)

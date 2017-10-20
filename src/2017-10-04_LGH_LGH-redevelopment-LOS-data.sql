@@ -5,19 +5,19 @@
 
 ----------------------------------------
 --TODO: 
+-- 4E: check wheter LOSDays numrows (1530) equals num unique visits in #unitresults 
 ----------------------------------------
 
-----------------------------------------
-
+if object_id('tempdb.dbo.#unitresults') IS NOT NULL drop table #unitresults; 
 
 -- Pull all admits to specified Nursing Unit: ----------------------------------------
 -- Set desired Nursing Unit: 
-Declare @nursingunit as varchar(3) = '4E'; 
+Declare @nursingunit as varchar(3) = '4w'; 
 
 
-Select a.ContinuumID as [a.ContinuumID]
+Select a.ContinuumID as [aContinuumID]
 	, tr.ContinuumID as [tr.ContinuumID]
-	, a.AccountNumber
+	, a.AccountNumber as [aAccountNumber]
 	, tr.AccountNum
 	, AdmissionNursingUnitCode
 	, AdmissionFiscalYear
@@ -34,6 +34,7 @@ Select a.ContinuumID as [a.ContinuumID]
 	, case when ToBed = FromBed then '1' 
 		else 0 
 		end as CheckTransferCols 
+into #unitresults
 From [ADTCMart].[ADTC].[vwAdmissionDischargeFact] a 
 	full outer join [ADTCMart].[ADTC].[vwTransferFact] tr
 		on a.ContinuumId = tr.ContinuumId
@@ -50,7 +51,37 @@ order by AdmissionNursingUnitCode
 	, tr.TransferDate
 	, tr.TransferTime; 
 
+/*
+-- display results: 
+select * from #unitresults 
+order by AdmissionNursingUnitCode
+	, [AdjustedAdmissionDate]
+	, [AdjustedAdmissionTime]
+	, TransferDate
+	, TransferTime; 
+*/
 
 
+----------------------------------------
+-- Pull overall LOS for these same patients: 
+select distinct ad.ContinuumID 
+	, ad.AccountNumber
+	, ad.AdmissionFacilityLongName
+	, ad.AdmissionNursingUnitCode
+	, @nursingunit as [unit specified] 
+	, ad.AdjustedAdmissionDate
+	, ad.AdmissionFiscalYear 
+	, r.aContinuumID
+	, r.aAccountNumber
+	, LOSDays 
+from [ADTCMart].[ADTC].[vwAdmissionDischargeFact] ad 
+right join #unitresults r
+	on ad.ContinuumID = r.[aContinuumID]
+		and ad.AccountNumber = r.aAccountNumber 
+--where (ad.AdmissionFacilityLongName = 'Lions Gate Hospital' ) 
+	--and (ad.AdmissionFiscalYear >= '2015' ) 
+	--and (ad.AdmissionNursingUnitCode in (@nursingunit))		-- no need for a where clause because all conditions were set in the #results query
+order by ad.AdmissionNursingUnitCode
+	, ad.AdjustedAdmissionDate; 
 
 

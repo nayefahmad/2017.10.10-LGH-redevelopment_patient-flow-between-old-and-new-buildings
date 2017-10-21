@@ -5,14 +5,18 @@
 
 ----------------------------------------
 --TODO: 
--- 4E: check wheter LOSDays numrows (1530) equals num unique visits in #unitresults 
+-- check whether LOSDays numrows (1530) equals num unique visits in #unitresults (from R code)
+-- > 4W: FALSE 1530 <> 1517
+-- > 4E: FALSE 6218 <> 6159
+-- > 6E: FALSE 6693 <> 6632 
+-- > 6W: FALSE 5714 <> 5661 
 ----------------------------------------
 
 if object_id('tempdb.dbo.#unitresults') IS NOT NULL drop table #unitresults; 
 
 -- Pull all admits to specified Nursing Unit: ----------------------------------------
 -- Set desired Nursing Unit: 
-Declare @nursingunit as varchar(3) = '4w'; 
+Declare @nursingunit as varchar(3) = '6W'; 
 
 
 Select a.ContinuumID as [aContinuumID]

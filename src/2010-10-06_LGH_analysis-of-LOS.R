@@ -12,6 +12,8 @@ library("dplyr")
 
 # Todo: -------------------
 # > why 58 NAs for 4E data? 
+# > get arrival timestamps for 4W, 6E, 6W 
+# > unite date and time columns, recalculate LOS, timestamps 
 # ******************************
 
 
@@ -20,8 +22,10 @@ library("dplyr")
 source("2017-10-06_Example-data-cleaning.R")
 # str(losdata)
 
-# pull in function to calculate LOS: 
+# pull in function to calculate LOS, extract arrival timestamps: 
 source("los_function.R")
+source("arrival-timestamp_function.R")
+
 
 # ******************************
 
@@ -30,6 +34,7 @@ source("los_function.R")
 # Analysis for 4E ---------------
 # ******************************
 
+# > LOS calculation: --------------
 # split data by unique encounter: 
 split.losdata.4e <- split(losdata.4e, losdata.4e$id)
 # str(split.losdata)
@@ -55,6 +60,15 @@ summary.4e <-
           x90th.perc=quantile(los.4e, probs = .90, na.rm=TRUE))
 
 table.4e <- table(los.4e) %>% as.data.frame
+
+
+# > Extract arrival timestamps: ------------
+arrivals.4e <- lapply(split.losdata.4e, arrival.fn, 
+                      nursingunit = "4E")
+arrivals.4e <- do.call("c", arrivals.4e) %>% unname
+
+str(arrivals.4e)
+summary(arrivals.4e)
 
 
 # ******************************

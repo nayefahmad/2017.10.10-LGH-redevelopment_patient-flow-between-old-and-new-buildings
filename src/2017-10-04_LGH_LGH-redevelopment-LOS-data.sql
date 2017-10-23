@@ -5,7 +5,7 @@
 
 ----------------------------------------
 --TODO: 
--- check whether LOSDays numrows (1530) equals num unique visits in #unitresults (from R code)
+-- check whether LOSDays numrows equals num unique visits in #unitresults (from R code)
 -- > 4W: FALSE 1530 <> 1517
 -- > 4E: FALSE 6218 <> 6159
 -- > 6E: FALSE 6693 <> 6632 

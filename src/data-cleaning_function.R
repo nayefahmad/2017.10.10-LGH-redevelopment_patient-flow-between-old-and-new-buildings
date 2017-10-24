@@ -6,6 +6,7 @@
 
 
 # TODO: -------------
+
 #*********************
 
 
@@ -14,6 +15,8 @@ clean.los <- function(df){
       # function takes a df, does some cleaning, outputs a df
       require("dplyr")
       require("tidyr")
+      
+      names(df) <- tolower(names(df))
       
       mutate(df, 
              admissionnursingunitcode = as.factor(admissionnursingunitcode), 

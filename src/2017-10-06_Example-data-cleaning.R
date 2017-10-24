@@ -34,17 +34,16 @@ losdata.4e <- read.csv("\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow P
                     na.strings = "NULL", 
                     stringsAsFactors = TRUE) 
 
-names(losdata.4e) <- tolower(names(losdata.4e))
-
-losdata.4e <- clean.los(losdata.4e)
+losdata.4e <- clean.los(losdata.4e)  # NAs returned for pts not discharged yet
 
 # str(losdata.4e)
 # summary(losdata.4e)
+# summary(select(losdata.4e, 6:8))
 # head(losdata.4e)
 
 
 # save reformatted data: ----------------
-write.csv(losdata.4e, file="\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.04 LGH redevelopment - patient flow between old and new buildings/results/output from src/2017-10-10_LGH_4E-LOS-reformatted.csv", 
+write.csv(losdata.4e, file="\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.10 LGH redevelopment - patient flow between old and new buildings/results/output from src/2017-10-10_LGH_4E-LOS-reformatted.csv", 
           row.names = FALSE)
 
 
@@ -58,12 +57,11 @@ losdata.6e <- read.csv("\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow P
                        na.strings = "NULL", 
                        stringsAsFactors = TRUE) 
 
-names(losdata.6e) <- tolower(names(losdata.6e))
-
 losdata.6e <- clean.los(losdata.6e)
 
 # str(losdata.6e)
 # summary(losdata.6e)
+# summary(select(losdata.6e, 6:8))
 # head(losdata.6e)
 
 # save reformatted data: ----------------
@@ -82,12 +80,11 @@ losdata.6w <- read.csv("\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow P
                        na.strings = "NULL", 
                        stringsAsFactors = TRUE) 
 
-names(losdata.6w) <- tolower(names(losdata.6w))
-
 losdata.6w <- clean.los(losdata.6w)
 
 # str(losdata.6w)
 # summary(losdata.6w)
+# summary(select(losdata.6w, 6:8))
 # head(losdata.6w)
 
 # save reformatted data: ----------------
@@ -108,12 +105,11 @@ losdata.4w <- read.csv("\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow P
                        na.strings = "NULL", 
                        stringsAsFactors = TRUE) 
 
-names(losdata.4w) <- tolower(names(losdata.4w))
-
 losdata.4w <- clean.los(losdata.4w)
 
 # str(losdata.4w)
 # summary(losdata.4w)
+# summary(select(losdata.4w, 6:8))
 # head(losdata.4w)
 
 # save reformatted data: ----------------

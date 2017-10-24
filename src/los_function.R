@@ -40,13 +40,15 @@ los.fn <- function(df, nursingunit){
       if (df$ad.unitcode[1] == nursingunit && is.na(df$t.date[1] == TRUE)) {
             # patient type: ad and dis from 4E, no transfers 
             # print("branch1")
-            return(df$dis.date - df$ad.date)
+            difftime <- df$dis.date - df$ad.date
+            return(as.numeric(difftime, units="days"))
             
       } else if (df$ad.unitcode[1] == nursingunit && df$to.unit != nursingunit){
             # patient type: admit to 4E, transferred out of 4E, 
             # no internal transfers in 4E 
             # print("branch2")
-            return(df$t.date[1] - df$ad.date[1])  
+            difftime <- df$t.date[1] - df$ad.date[1]
+            return(as.numeric(difftime, units="days"))
             
       } else if (df$ad.unitcode[1] == nursingunit && df$to.unit == nursingunit){
             # patient type: admit to 4E, internal transfer in 4E
@@ -58,9 +60,11 @@ los.fn <- function(df, nursingunit){
             # check whether transfer or discharge is the endpoint of LOS: 
             if (any(index)==TRUE){
                   i <- match(TRUE, index)  # rownum of transfer out of 4E 
-                  return(df$t.date[i] - df$ad.date[1])
+                  difftime <- df$t.date[i] - df$ad.date[1]
+                  return(as.numeric(difftime, units="days"))
             } else {
-                  return(df$dis.date[1] - df$ad.date[1])
+                  difftime <- df$dis.date[1] - df$ad.date[1]
+                  return(as.numeric(difftime, units="days"))
             }
             
       } else if (df$ad.unitcode[1] != nursingunit && df$to.unit == nursingunit) {
@@ -73,9 +77,11 @@ los.fn <- function(df, nursingunit){
             # note that t.date[1] is the start point, not ad.date[1]
             if (any(index)==TRUE){
                   i <- match(TRUE, index)  # rownum of transfer out of 4E 
-                  return(df$t.date[i] - df$t.date[1])
+                  difftime <- df$t.date[i] - df$t.date[1]
+                  return(as.numeric(difftime, units="days"))
             } else {
-                  return(df$dis.date[1] - df$t.date[1])
+                  difftime <- df$dis.date[1] - df$t.date[1]
+                  return(as.numeric(difftime, units="days"))
             }
             
             

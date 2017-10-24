@@ -34,20 +34,20 @@ los.fn <- function(df, nursingunit){
       
       
       df <- arrange(df,
-                    ad.date, t.date)
+                    ad.dtime, t.dtime)
       # print(df)
       # df$ad.unitcode
-      if (df$ad.unitcode[1] == nursingunit && is.na(df$t.date[1] == TRUE)) {
+      if (df$ad.unitcode[1] == nursingunit && is.na(df$t.dtime[1] == TRUE)) {
             # patient type: ad and dis from 4E, no transfers 
             # print("branch1")
-            difftime <- df$dis.date - df$ad.date
+            difftime <- df$dis.dtime - df$ad.dtime
             return(as.numeric(difftime, units="days"))
             
       } else if (df$ad.unitcode[1] == nursingunit && df$to.unit != nursingunit){
             # patient type: admit to 4E, transferred out of 4E, 
             # no internal transfers in 4E 
             # print("branch2")
-            difftime <- df$t.date[1] - df$ad.date[1]
+            difftime <- df$t.dtime[1] - df$ad.dtime[1]
             return(as.numeric(difftime, units="days"))
             
       } else if (df$ad.unitcode[1] == nursingunit && df$to.unit == nursingunit){
@@ -60,10 +60,10 @@ los.fn <- function(df, nursingunit){
             # check whether transfer or discharge is the endpoint of LOS: 
             if (any(index)==TRUE){
                   i <- match(TRUE, index)  # rownum of transfer out of 4E 
-                  difftime <- df$t.date[i] - df$ad.date[1]
+                  difftime <- df$t.dtime[i] - df$ad.dtime[1]
                   return(as.numeric(difftime, units="days"))
             } else {
-                  difftime <- df$dis.date[1] - df$ad.date[1]
+                  difftime <- df$dis.dtime[1] - df$ad.dtime[1]
                   return(as.numeric(difftime, units="days"))
             }
             
@@ -74,13 +74,13 @@ los.fn <- function(df, nursingunit){
             # print(c("index=", index))
             
             # check whether transfer or discharge is the endpoint of LOS: 
-            # note that t.date[1] is the start point, not ad.date[1]
+            # note that t.dtime[1] is the start point, not ad.dtime[1]
             if (any(index)==TRUE){
                   i <- match(TRUE, index)  # rownum of transfer out of 4E 
-                  difftime <- df$t.date[i] - df$t.date[1]
+                  difftime <- df$t.dtime[i] - df$t.dtime[1]
                   return(as.numeric(difftime, units="days"))
             } else {
-                  difftime <- df$dis.date[1] - df$t.date[1]
+                  difftime <- df$dis.dtime[1] - df$t.dtime[1]
                   return(as.numeric(difftime, units="days"))
             }
             

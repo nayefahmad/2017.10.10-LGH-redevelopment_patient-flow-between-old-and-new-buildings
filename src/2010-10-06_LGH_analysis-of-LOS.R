@@ -13,7 +13,6 @@ library("dplyr")
 # Todo: -------------------
 # > why 58 NAs for 4E data? 
 # > get arrival timestamps for 4W, 6E, 6W 
-# > unite date and time columns, recalculate LOS, timestamps 
 # ******************************
 
 
@@ -188,7 +187,7 @@ p1_hist.4e <-
       labs(x="LOS in days", 
            y="Number of cases", 
            title="Distribution of LOS in LGH 4E", 
-           subtitle="From 2014-04-01 onwards \nMedian = 5 days; Mean = 11.1 days; ", 
+           subtitle="From 2014-04-01 onwards \nMedian = 4.9 days; Mean = 11.1 days; ", 
            caption= "\nData source: DSDW ADTCMart; extraction date: 2017-10-10 ") + 
       
       geom_vline(xintercept = summary.4e[,2], 
@@ -219,7 +218,7 @@ p2_hist.4w <-
       labs(x="LOS in days", 
            y="Number of cases", 
            title="Distribution of LOS in LGH 4W", 
-           subtitle="From 2014-04-01 onwards \nMedian = 19 days; Mean = 25.4 days; ", 
+           subtitle="From 2014-04-01 onwards \nMedian = 18.8 days; Mean = 25.4 days; ", 
            caption= "\nData source: DSDW ADTCMart; extraction date: 2017-10-11 ") + 
       
       geom_vline(xintercept = summary.4w[,2], 
@@ -249,7 +248,7 @@ p3_hist.6e <-
       labs(x="LOS in days", 
            y="Number of cases", 
            title="Distribution of LOS in LGH 6E", 
-           subtitle="From 2014-04-01 onwards \nMedian = 3 days; Mean = 6.7 days; ", 
+           subtitle="From 2014-04-01 onwards \nMedian = 2.9 days; Mean = 6.7 days; ", 
            caption= "\nData source: DSDW ADTCMart; extraction date: 2017-10-10 ") + 
       
       geom_vline(xintercept = summary.6e[,2], 
@@ -279,7 +278,7 @@ p4_hist.6w <-
       labs(x="LOS in days", 
            y="Number of cases", 
            title="Distribution of LOS in LGH 6W", 
-           subtitle="From 2014-04-01 onwards \nMedian = 3 days; Mean = 8.6 days; ", 
+           subtitle="From 2014-04-01 onwards \nMedian = 3.0 days; Mean = 8.5 days; ", 
            caption= "\nData source: DSDW ADTCMart; extraction date: 2017-10-11 ") + 
       
       geom_vline(xintercept = summary.6w[,2], 

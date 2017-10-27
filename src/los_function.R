@@ -44,10 +44,6 @@ los.fn <- function(df, nursingunit){
             return(as.numeric(difftime, units="days"))
             
       } else if (df$ad.unitcode[1] == nursingunit && df$to.unit != nursingunit){
-            # note the use of &&: "&& evaluates left to right examining only 
-            # the first element of each vector. Here, df$ad.unitcode[1] is a 
-            # vector of length 1, while length(df$to.unit) >= 1
-            
             # patient type: admit to 4E, transferred out of 4E, 
             # no internal transfers in 4E 
             # print("branch2")

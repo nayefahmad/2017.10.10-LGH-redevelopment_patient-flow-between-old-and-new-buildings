@@ -5,6 +5,7 @@
 
 # TODO: -----------
 # > delete redundant if else 
+# > copy entire function over from los_function
 #*******************
 
 

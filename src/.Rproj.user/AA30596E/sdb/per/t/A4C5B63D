@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "\n#******************************************\n# function to find arrival time of single patient\n#******************************************\n\n# TODO: -----------\n# > delete redundant if else \n# > copy entire function over from los_function\n#*******************\n\n\n# function definition: ----------------\n\narrival.fn <- function(df, nursingunit){\n      # inputs:\n            # dataframe with all rows of single patient-account combo \n            # nursingunitcode as character string \n      # output: arrival timestamp for the specified unit  \n      \n      require(\"dplyr\")\n      require(\"tidyr\")\n      require(\"lubridate\")\n      \n      \n      df <- arrange(df,\n                    ad.date, t.date)\n      # print(df)\n      # df$ad.unitcode\n      if (df$ad.unitcode[1] == nursingunit && is.na(df$t.date[1] == TRUE)) {\n            # patient type: ad and dis from specified unit, no transfers \n            # print(\"branch1\")\n            return(df$ad.date)\n            \n      } else if (df$ad.unitcode[1] == nursingunit && df$to.unit != nursingunit){\n            # patient type: admit to specified unit, transferred out of specified unit, \n            # no internal transfers in specified unit \n            # print(\"branch2\")\n            return(df$ad.date[1])  \n            \n      } else if (df$ad.unitcode[1] == nursingunit && df$to.unit == nursingunit){\n            # patient type: admit to specified unit, internal transfer in specified unit\n            index <- df$to.unit != nursingunit  \n            # ^ logical vec to find first transfer out of 4E \n            # print(\"branch3\")\n            # print(c(\"index=\", index))\n            \n            # check whether transfer or discharge is the endpoint of LOS: \n            if (any(index)==TRUE){\n                  i <- match(TRUE, index)  # rownum of transfer out of nursingunit\n                  return(df$ad.date[1])\n            } else {\n                  return(df$ad.date[1])\n            }\n            \n      } else if (df$ad.unitcode[1] != nursingunit && df$to.unit == nursingunit) {\n            # patient type: admit to other, transferred to specified unit \n            index <- df$to.unit != nursingunit  \n            # print(\"branch4\") \n            # print(c(\"index=\", index))\n            \n            # check whether transfer or discharge is the endpoint of LOS: \n            # note that t.date[1] is the start point, not ad.date[1]\n            if (any(index)==TRUE){\n                  i <- match(TRUE, index)  # rownum of transfer out of nursingunit \n                  return(df$t.date[1])\n            } else {\n                  return(df$t.date[1])\n            }\n            \n            \n      } else {\n            # patient type: other \n            # print(\"branch5\")\n            return(NA)\n      }\n}\n",
+    "created" : 1508550124038.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "52288030",
+    "id" : "A4C5B63D",
+    "lastKnownWriteTime" : 1508809020,
+    "last_content_update" : -2147483648,
+    "path" : "//vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.10 LGH redevelopment - patient flow between old and new buildings/src/arrival-timestamp_function.R",
+    "project_path" : "arrival-timestamp_function.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

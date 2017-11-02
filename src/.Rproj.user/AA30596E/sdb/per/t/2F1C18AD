@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "\n\n#******************************************\n# Function for basic data wrangling on data output from sql\n#******************************************\n\n\n# TODO: -------------\n\n#*********************\n\n\nclean.los <- function(df){\n      \n      # function takes a df, does some cleaning, outputs a df\n      require(\"dplyr\")\n      require(\"tidyr\")\n      \n      names(df) <- tolower(names(df))\n      \n      mutate(df, \n             admissionnursingunitcode = as.factor(admissionnursingunitcode), \n             adjustedadmissiondate = mdy(adjustedadmissiondate), \n             adjusteddischargedate = mdy(adjusteddischargedate), \n             transferdate = mdy(transferdate)) %>% \n            \n            rename(ad.unitcode = admissionnursingunitcode,\n                   from.unit = fromnursingunitcode, \n                   to.unit = tonursingunitcode, \n                   ad.date = adjustedadmissiondate, \n                   ad.time = adjustedadmissiontime, \n                   dis.date = adjusteddischargedate,\n                   dis.time = adjusteddischargetime, \n                   t.date = transferdate, \n                   t.time = transfertime) %>% \n            unite(col = id, \n                  c(a.continuumid, accountnumber), \n                  sep = \"-\") %>% \n            mutate(id = as.factor(id)) %>% \n            \n            # join dates and times: \n            unite(col = ad.dtime, \n                  c(ad.date, ad.time), sep=\" \") %>%\n            unite(col=dis.dtime, \n                  c(dis.date, dis.time), sep=\" \") %>%\n            unite(col=t.dtime, \n                  c(t.date, t.time), sep=\" \") %>% \n            \n            # change datetimes to date format: \n            mutate(ad.dtime = ymd_hm(ad.dtime), \n                   dis.dtime = ymd_hm(dis.dtime), \n                   t.dtime = ymd_hm(t.dtime))\n      \n}\n",
+    "created" : 1508800592522.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1151282238",
+    "id" : "2F1C18AD",
+    "lastKnownWriteTime" : 1508807174,
+    "last_content_update" : -2147483648,
+    "path" : "//vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.10 LGH redevelopment - patient flow between old and new buildings/src/data-cleaning_function.R",
+    "project_path" : "data-cleaning_function.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 5,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

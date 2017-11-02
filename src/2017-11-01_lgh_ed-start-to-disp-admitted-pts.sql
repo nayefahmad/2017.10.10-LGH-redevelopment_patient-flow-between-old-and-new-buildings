@@ -4,13 +4,17 @@
 -- avg starttodisposition for admitted pts at LGH 
 ----------------------------------
 
+-- TODO: 
+-- > find bedrequest to disposition time for admits 
+
+
 declare @start date
 	, @end date; 
 
 set @start='2017-03-01' 
 set @end='2017-10-31' 
 
-
+/*
 -- find all pts who were admitted in 10 hours: 
 SELECT	FacilityShortName,
 		StartDateFiscalYear,
@@ -40,3 +44,22 @@ GROUP BY FacilityShortName
 ORDER BY StartDateFiscalYear
 		,StartDateFiscalPeriodLong
 		,startdate; 
+
+*/
+
+select [ETLAuditID]
+	, FacilityShortName
+	, StartDate
+	, [StarttoDispositionExclCDUtoBedRequest]
+from EDMART.[dbo].[vwEDVisitRegional] a
+		LEFT OUTER JOIN EDMart.dbo.vwDTUDischargedHome DTU 
+			on a.ETLAuditID = DTU.ED_ETLAuditID
+where FacilityShortName = 'LGH'
+		AND StartDate >= @start
+		and StartDate <= @end
+		AND a.AdmittedFlag='True'
+		AND a.AccountTypeDescription = 'Inpatient'
+		-- And [StarttoDispositionExclCDUtoBedRequest] <=600
+order by StartDate
+	, [StarttoDispositionExclCDUtoBedRequest]
+	, [ETLAuditID]

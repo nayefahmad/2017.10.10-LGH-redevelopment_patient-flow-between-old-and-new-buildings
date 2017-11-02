@@ -25,23 +25,23 @@ create table #HospitalistList (Hospitalist varchar(75))
 if @site='lions gate hospital'
 begin
 insert into #HospitalistList (Hospitalist) values
-('BRACHE, MORGAN L.')
-,('BYMAN, ANDREA')
-,('CHAN, PHILIP')
-,('CHORNY, IRINA')
-,('EARLY, ANITA M.')
-,('Evans, David Joseph')
-,('KAZEMI, ALI-REZA')
-,('KROLL, EDWARD S.')
-,('LEA, JOHN')
-,('LONG, BRUCE FREDERICK')
-,('MCFEE, INGRID')
-,('MORGENSTERN, KATHERINE')
-,('O''NEIL, MICHAEL BRENDAN')
-,('PURVIS, ALISON')
-,('SAUNIER, JEREMY GABRIEL')
-,('STOKES, ERIKA')
-,('ZIBIN, KERRY')
+	('BRACHE, MORGAN L.')
+	,('BYMAN, ANDREA')
+	,('CHAN, PHILIP')
+	,('CHORNY, IRINA')
+	,('EARLY, ANITA M.')
+	,('Evans, David Joseph')
+	,('KAZEMI, ALI-REZA')
+	,('KROLL, EDWARD S.')
+	,('LEA, JOHN')
+	,('LONG, BRUCE FREDERICK')
+	,('MCFEE, INGRID')
+	,('MORGENSTERN, KATHERINE')
+	,('O''NEIL, MICHAEL BRENDAN')
+	,('PURVIS, ALISON')
+	,('SAUNIER, JEREMY GABRIEL')
+	,('STOKES, ERIKA')
+	,('ZIBIN, KERRY')
 end
 
 
@@ -137,34 +137,40 @@ set @timecountermax=24
 			,0 as [AdmitToCensusDays]
 		from [ADTC].[AdmissionDischargeView]
 		where admissionfacilitylongname=@site
-		--and [AttendDoctorName] in (select hospitalist from #hospitalistlist)
+			--and [AttendDoctorName] in (select hospitalist from #hospitalistlist)
 			and cast(adjustedadmissiondate as date)=@censusdate 
 			and accounttype in ('i','inpatient')
 			and admissionAccountSubType  in ('Acute','Geriatric','*IP Hospice','*IP Medical','*IP Obstetrics','*IP Pediatrics','*IP Psychiatric','*IP Surgical')
 			and [AdmissionNursingUnitCode] not like 'M[0-9]%'
 			and admissionPatientservicecode<>'nb'
-			and cast(adjustedadmissiontime as time) between (select [Time24Hr] from #time where row=@timecounter-1) and (select [Time24Hr] from #time where row=@timecounter)
+			and cast(adjustedadmissiontime as time) between 
+				(select [Time24Hr] from #time where row=@timecounter-1) 
+				and (select [Time24Hr] from #time where row=@timecounter)
 
 		--/***** remove discharges each hour *****/
 		delete #census
 		where accountnum in (
-		select AccountNumber
-			--cast(adjusteddischargedate as date) as censusdate,(select [Time24Hr] from #time where row=@timecounter) as censustime
-			--,dischargenursingunitcode as nursingunitcode,AccountNumber as accountnum
-			--,case when [dischargeAttendingDrName] in (select hospitalist from #hospitalistlist) then 'Hospitalist' else [dischargeAttendingDrService] end as [AttendDoctorService]
-			--,case when DischargePatientServiceCode like 'AL[0-9]' or DischargePatientServiceCode like 'A[0-9]%' then 'ALC' else 'Not ALC' end as ALCFlag
-			--,[dischargePatientServiceDescription] as [PatientServiceDescription]
-			--,0 as [AdmitToCensusDays]
-		from [ADTC].[AdmissionDischargeView]
-		where dischargefacilitylongname=@site
-			--and [AttendDoctorName] in (select hospitalist from #hospitalistlist)
-			and cast(adjusteddischargedate as date)=@censusdate 
-			and accounttype in ('i','inpatient')
-			and dischargeAccountSubType  in ('Acute','Geriatric','*IP Hospice','*IP Medical','*IP Obstetrics','*IP Pediatrics','*IP Psychiatric','*IP Surgical')
-			and [dischargeNursingUnitCode] not like 'M[0-9]%'
-			and dischargePatientservicecode<>'nb'
-			and cast(adjusteddischargetime as time) between (select [Time24Hr] from #time where row=@timecounter-1) and (select [Time24Hr] from #time where row=@timecounter)
-			) and censusdate=@censusdate and censustime = (select [Time24Hr] from #time where row=@timecounter)
+			
+			select AccountNumber
+				--cast(adjusteddischargedate as date) as censusdate,(select [Time24Hr] from #time where row=@timecounter) as censustime
+				--,dischargenursingunitcode as nursingunitcode,AccountNumber as accountnum
+				--,case when [dischargeAttendingDrName] in (select hospitalist from #hospitalistlist) then 'Hospitalist' else [dischargeAttendingDrService] end as [AttendDoctorService]
+				--,case when DischargePatientServiceCode like 'AL[0-9]' or DischargePatientServiceCode like 'A[0-9]%' then 'ALC' else 'Not ALC' end as ALCFlag
+				--,[dischargePatientServiceDescription] as [PatientServiceDescription]
+				--,0 as [AdmitToCensusDays]
+			from [ADTC].[AdmissionDischargeView]
+			where dischargefacilitylongname=@site
+				--and [AttendDoctorName] in (select hospitalist from #hospitalistlist)
+				and cast(adjusteddischargedate as date)=@censusdate 
+				and accounttype in ('i','inpatient')
+				and dischargeAccountSubType  in ('Acute','Geriatric','*IP Hospice','*IP Medical','*IP Obstetrics','*IP Pediatrics','*IP Psychiatric','*IP Surgical')
+				and [dischargeNursingUnitCode] not like 'M[0-9]%'
+				and dischargePatientservicecode<>'nb'
+				and cast(adjusteddischargetime as time) between (select [Time24Hr] from #time where row=@timecounter-1) 
+					and (select [Time24Hr] from #time where row=@timecounter)
+				) 
+
+		and censusdate=@censusdate and censustime = (select [Time24Hr] from #time where row=@timecounter)
 
 
 		set @timecounter =@timecounter +1

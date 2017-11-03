@@ -16,7 +16,7 @@ if object_id('tempdb.dbo.#unitresults') IS NOT NULL drop table #unitresults;
 
 -- Pull all admits to specified Nursing Unit: ----------------------------------------
 -- Set desired Nursing Unit: 
-Declare @nursingunit as varchar(3) = '6W'; 
+Declare @nursingunit as varchar(3) = '7E'; 
 
 
 Select a.ContinuumID as [aContinuumID]
@@ -42,7 +42,7 @@ into #unitresults
 From [ADTCMart].[ADTC].[vwAdmissionDischargeFact] a 
 	full outer join [ADTCMart].[ADTC].[vwTransferFact] tr
 		on a.ContinuumId = tr.ContinuumId
-			and a.AccountNumber = tr.AccountNum
+			--and a.AccountNumber = tr.AccountNum
 Where (AdmissionFacilityLongName = 'Lions Gate Hospital' ) 
 	and (AdmissionFiscalYear >= '2015' ) 
 	--and AdjustedAdmissionDate > '2017-01-01'		-- just for testing 
@@ -65,7 +65,7 @@ order by AdmissionNursingUnitCode
 	, TransferTime; 
 */
 
-
+--Select count(distinct [aContinuumID]) from #unitresults
 ----------------------------------------
 -- Pull overall LOS for these same patients: 
 select distinct ad.ContinuumID 

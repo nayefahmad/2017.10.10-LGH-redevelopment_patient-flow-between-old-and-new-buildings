@@ -7,7 +7,7 @@ declare @site varchar(50)
 set @site='lions gate hospital'
 
 declare @startdate date,@enddate date
-set @startdate='10/31/2017'
+set @startdate='03/01/2017'
 set @enddate='10/31/2017'
 
 ------------------------------------
@@ -65,8 +65,8 @@ order by shortdate
 /***** create census table *****/
 create table #census (censusdate date
 	,censustime time
-	,nursingunitcode varchar(25)
-	,accountnum varchar(20)
+	,nursingunitcode varchar(75)
+	,accountnum varchar(25)
 	,[AttendDoctorService] varchar(75)
 	,ALCFlag varchar(10)
 	,[PatientServiceDescription] varchar(75)
@@ -207,7 +207,8 @@ select censusdate
 	,nursingunitcode
 	,count(*) as census
 from #census
---where [AttendDoctorService]='hospitalist'
+where nursingunitcode in ('4E', '6E', '6W', '7E') 
+	-- and censustime like '12:01:00' 
 group by censusdate
 	,nursingunitcode
 	,censustime
@@ -223,13 +224,18 @@ drop table #hospitalistlist
 
 
 /***** Return data *******/
-select fiscalperiodlong,censustime,[AttendDoctorService],count(*)*1.0/daysinfiscalperiod as avgcensus
+/*
+select fiscalperiodlong
+	,censustime
+	,count(*)*1.0/daysinfiscalperiod as avgcensus
 from #census
 left outer join dim.[date] on cast(shortdate as date)=censusdate
---where [AttendDoctorService]='hospitalist'
-group by fiscalperiodlong,censustime,[AttendDoctorService],daysinfiscalperiod
-order by fiscalperiodlong,censustime
-
+group by fiscalperiodlong
+	,censustime
+	,daysinfiscalperiod
+order by fiscalperiodlong
+	,censustime
+*/
 
 /*
 select censusdate,censustime,[AttendDoctorService],count(*)*1.0 as census

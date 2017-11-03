@@ -7,7 +7,7 @@ declare @site varchar(50)
 set @site='lions gate hospital'
 
 declare @startdate date,@enddate date
-set @startdate='3/1/2017'
+set @startdate='10/31/2017'
 set @enddate='10/31/2017'
 
 ------------------------------------
@@ -80,30 +80,36 @@ set @censusdatecounter =1
 set @censusdatecountermax = (select max(row) from #date)
 
 
--- start outer loop: 
+-- start outer loop: loop through dates:  
 while @censusdatecounter <=@censusdatecountermax 
 BEGIN
 set @censusdate =(select shortdate from #date where row=@censusdatecounter)
 
-insert into #census 
+insert into #census			-- add midnight census data for day1 in period
+
 select cast(@censusdate as date) as censusdate
-	,cast(dateadd(mi,1,cast(@censusdate as datetime)) as time) as censustime,nursingunitcode,accountnum
-	,case when [AttendDoctorName] in (select hospitalist from #hospitalistlist) then 'Hospitalist' else [AttendDoctorService] end as [AttendDoctorService]
-	,case when Patientservicecode like 'AL[0-9]' or Patientservicecode like 'A[0-9]%' or Patientservicecode = 'ALC' then 'ALC' else 'Not ALC' end as ALCFlag
-	,[PatientServiceDescription],[AdmitToCensusDays]
+	,cast(dateadd(mi,1,cast(@censusdate as datetime)) as time) as censustime
+	,nursingunitcode
+	,accountnum
+	,case when [AttendDoctorName] in (select hospitalist from #hospitalistlist) then 'Hospitalist' 
+		else [AttendDoctorService] 
+		end as [AttendDoctorService]
+	--,case when Patientservicecode like 'AL[0-9]' or Patientservicecode like 'A[0-9]%' or Patientservicecode = 'ALC' then 'ALC' else 'Not ALC' end as ALCFlag
+	--,[PatientServiceDescription]
+	,[AdmitToCensusDays]
 from [ADTC].[CensusView]
 where facilitylongname=@site
 --and [AttendDoctorName] in (select hospitalist from #hospitalistlist)
 	and	accounttype in ('i','inpatient')
 	and AccountSubType  in ('Acute','Geriatric','*IP Hospice','*IP Medical','*IP Obstetrics','*IP Pediatrics','*IP Psychiatric','*IP Surgical')
 	and [NursingUnitCode] not like 'M[0-9]%'
-	and Patientservicecode<>'nb'
+	and Patientservicecode <>'nb'
 	and censusdate=dateadd(dd,-1,@censusdate)
 --select * from #census order by censusdate,censustime
 
 --/***** loop through the times *****/
 declare @timecounter int,@timecountermax int
-set @timecounter=2
+set @timecounter=2		-- hour 2 is 0100, 1hour after baseline of midnight 
 set @timecountermax=24
 
 -- inner loop: 
@@ -219,7 +225,7 @@ group by fiscalperiodlong,censustime,[AttendDoctorService],daysinfiscalperiod
 order by fiscalperiodlong,censustime
 
 
-
+/*
 select censusdate,censustime,[AttendDoctorService],count(*)*1.0 as census
 ,sum(case when alcflag<>'alc' then 1 else 0 end)*1.0 as acutecensus
 ,sum(case when alcflag='alc' then 1 else 0 end)*1.0 as alccensus
@@ -229,3 +235,4 @@ left outer join dim.[date] on cast(shortdate as date)=censusdate
 --and censustime ='00:01:00.0000000'
 group by censusdate,censustime,[AttendDoctorService],daysinfiscalperiod
 order by censusdate,censustime
+*/

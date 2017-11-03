@@ -86,7 +86,6 @@ BEGIN
 set @censusdate =(select shortdate from #date where row=@censusdatecounter)
 
 insert into #census			-- add midnight census data for day1 in period
-
 select cast(@censusdate as date) as censusdate
 	,cast(dateadd(mi,1,cast(@censusdate as datetime)) as time) as censustime
 	,nursingunitcode
@@ -94,8 +93,8 @@ select cast(@censusdate as date) as censusdate
 	,case when [AttendDoctorName] in (select hospitalist from #hospitalistlist) then 'Hospitalist' 
 		else [AttendDoctorService] 
 		end as [AttendDoctorService]
-	--,case when Patientservicecode like 'AL[0-9]' or Patientservicecode like 'A[0-9]%' or Patientservicecode = 'ALC' then 'ALC' else 'Not ALC' end as ALCFlag
-	--,[PatientServiceDescription]
+	,case when Patientservicecode like 'AL[0-9]' or Patientservicecode like 'A[0-9]%' or Patientservicecode = 'ALC' then 'ALC' else 'Not ALC' end as ALCFlag
+	,[PatientServiceDescription]
 	,[AdmitToCensusDays]
 from [ADTC].[CensusView]
 where facilitylongname=@site
@@ -203,11 +202,18 @@ end
 
 /********  Ends here *******/
 
-select censusdate,censustime,count(*) as census
+select censusdate
+	,censustime
+	,nursingunitcode
+	,count(*) as census
 from #census
 --where [AttendDoctorService]='hospitalist'
-group by censusdate,censustime
-order by censusdate,censustime
+group by censusdate
+	,nursingunitcode
+	,censustime
+order by censusdate
+	,nursingunitcode
+	, censustime
 
 
 drop table #hospitalistlist 

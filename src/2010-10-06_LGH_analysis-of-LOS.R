@@ -18,7 +18,7 @@ library("dplyr")
 
 # ****************************** 
 # pull in clean data: 
-source("2017-10-06_Example-data-cleaning.R")
+source("2017-10-06_los-data-cleaning.R")
 # str(losdata)
 
 # pull in function to calculate LOS, extract arrival timestamps: 

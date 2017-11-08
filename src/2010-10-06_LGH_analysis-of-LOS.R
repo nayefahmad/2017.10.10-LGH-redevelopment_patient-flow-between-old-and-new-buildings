@@ -6,6 +6,7 @@
 
 library("ggplot2")
 library("dplyr")
+library("fitdistrplus")
 
 # rm(list=ls())
 
@@ -74,7 +75,7 @@ str(arrivals.4e)
 summary(arrivals.4e)
 head(arrivals.4e)
 
-# > find interarrival times: ----
+# > Find interarrival times: ----
 # first reorder the arrival timestamps 
 arrivals.4e <- arrivals.4e[order(arrivals.4e)]
 
@@ -84,6 +85,31 @@ interarrivals.4e <- difftime(arrivals.4e, lag(arrivals.4e)) %>%
 # combine in df: 
 arrivals.4e.df <- data.frame(arrivals=arrivals.4e, 
                              inter=interarrivals.4e)
+
+# >> fit distribution:------ 
+plotdist(interarrivals.4e)  # looks exponential 
+descdist(interarrivals.4e[!is.na(interarrivals.4e)],  # remove NA values 
+         boot=1000)  # possibly beta??
+
+# fit exponential dist: 
+exp.4e <- fitdist(interarrivals.4e[!is.na(interarrivals.4e)],
+                  "exp")
+summary(exp.4e)  # rate parameter, lambda = 0.0033249 
+lambda.4e <- summary(exp.4e)$estimate
+# rpois(100000, lambda.4e*60) %>% hist
+# ^ given this rate paramter for interarrivals (in minutes), we expect 
+# the number of arrivals in 60 minutes to be between 0 and 3
+
+# diagnostics: 
+setpar <- par(mfrow=c(2,2))  # save current par before changing it
+denscomp(exp.4e)
+qqcomp(exp.4e)
+cdfcomp(exp.4e)
+ppcomp(exp.4e)
+par(setpar)  # reset par 
+
+gofstat(exp.4e)  # KS stat prob not in rejection region: i.e. fail to reject
+                 # exponential dist
 
 
 # ******************************
@@ -339,7 +365,7 @@ p4_hist.6w <-
 
 # Save outputs: ---------------
 
-pdf(file="\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.10 LGH redevelopment - patient flow between old and new buildings/results/output from src/los-histogram-2015-2017_2.pdf", 
+pdf(file="\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.10 LGH redevelopment - patient flow between old and new buildings/results/output from src/2017-10-11_los-histogram-2015-2017.pdf", 
       height= 8.5, width = 14) 
 p1_hist.4e
 p2_hist.4w
@@ -372,3 +398,16 @@ write.csv(table.6e, file="\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow
 # histogram data, 6W: 
 write.csv(table.6w, file="\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.10 LGH redevelopment - patient flow between old and new buildings/results/output from src/2017-10-11_LGH_histogram-table_6W.csv", 
           row.names = FALSE)
+
+
+#*****************************
+# interarrivals, 4E: 
+write.csv(arrivals.4e.df, file="\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.10 LGH redevelopment - patient flow between old and new buildings/results/output from src/2017-11-07_arrival-timestamps-and-interarrivals-4e.csv", 
+          row.names = FALSE)
+
+# interarrival dist graph: 
+pdf(file="\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.10 LGH redevelopment - patient flow between old and new buildings/results/output from src/2017-11-07_interarrivals-4e.pdf", 
+    height= 8.5, width = 14) 
+p5_inter.4e
+dev.off()
+

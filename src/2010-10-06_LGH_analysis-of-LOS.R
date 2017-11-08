@@ -12,7 +12,11 @@ library("dplyr")
 
 # Todo: -------------------
 # > why 58 NAs for 4E data? 
-# > get arrival timestamps for 4W, 6E, 6W 
+# > get arrival timestamps for 6E, 6W, 7E
+# > all analysis for 7E 
+# > print data, graph for 4E interarrivals
+# > endpoints in subtitles of graphs: 2017-10-10? 
+# > replace los-histogram-2015-2017 with new version 
 # ******************************
 
 
@@ -68,6 +72,18 @@ arrivals.4e <- do.call("c", arrivals.4e) %>% unname
 
 str(arrivals.4e)
 summary(arrivals.4e)
+head(arrivals.4e)
+
+# > find interarrival times: ----
+# first reorder the arrival timestamps 
+arrivals.4e <- arrivals.4e[order(arrivals.4e)]
+
+interarrivals.4e <- difftime(arrivals.4e, lag(arrivals.4e)) %>% 
+      as.numeric(units="days") * (24*60)  # convert from days to minutes 
+
+# combine in df: 
+arrivals.4e.df <- data.frame(arrivals=arrivals.4e, 
+                             inter=interarrivals.4e)
 
 
 # ******************************
@@ -170,7 +186,7 @@ table.6w <- table(los.6w) %>% as.data.frame
 # Plotting with ggplot: ------------
 # ******************************
 
-# > Graph for 4E --------
+# > Graphs for 4E --------
 p1_hist.4e <- 
       ggplot(los.4e.df, 
              aes(x=los.4e)) + 
@@ -198,6 +214,30 @@ p1_hist.4e <-
                  linetype=2) + 
       
       theme_classic(base_size = 16); p1_hist.4e
+
+
+# plot interarrival times: 
+p5_inter.4e <- 
+      ggplot(arrivals.4e.df, 
+             aes(x=inter)) + 
+      geom_histogram(stat="bin", 
+                     binwidth = 60, 
+                     col="black", 
+                     fill="deepskyblue") + 
+      
+      scale_x_continuous(limits=c(-1,3000), 
+                         breaks=seq(0,3000,200), 
+                         expand=c(0,0)) + 
+      scale_y_continuous(expand=c(0,0)) + 
+      
+      labs(x="Interarrival time in min", 
+           y="Number of cases", 
+           title="Distribution of interarrival times in LGH 4E", 
+           subtitle="From 2014-04-01 to 2017-10-10", 
+           caption= "\nData source: DSDW ADTCMart; extraction date: 2017-10-10 ") + 
+      
+      theme_classic(base_size = 16); p5_inter.4e
+
 
 
 # > Graph for 4W --------

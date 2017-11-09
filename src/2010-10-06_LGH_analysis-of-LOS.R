@@ -13,11 +13,10 @@ library("fitdistrplus")
 
 # Todo: -------------------
 # > why 58 NAs for 4E data? 
-# > get arrival timestamps for 6E, 6W, 7E
+# > get arrival timestamps, interarrivals for 6E, 6W, 7E
 # > all analysis for 7E 
-# > print data, graph for 4E interarrivals
 # > endpoints in subtitles of graphs: 2017-10-10? 
-# > replace los-histogram-2015-2017 with new version 
+# > check KS statistics of dist. fitting 
 # ******************************
 
 
@@ -65,7 +64,58 @@ summary.4e <-
 
 table.4e <- table(los.4e) %>% as.data.frame
 
+# >> fit LOS distribution: ----------
+plotdist(los.4e)
+descdist(los.4e[!is.na(los.4e)], boot=1000)  # gamma might be good fit
 
+# remove NAs and negative values to fit gamma: 
+los.4e.remove.na.neg <- los.4e[!is.na(los.4e)]
+los.4e.remove.na.neg <- los.4e.remove.na.neg[!los.4e.remove.na.neg < 0]
+summary(los.4e.remove.na.neg)
+
+gamma.los.4e <- fitdist(los.4e.remove.na.neg, 
+                        "gamma", 
+                        method="mme")  
+                        # ^ default mle estimation not working 
+summary(gamma.los.4e)  # todo: why inf for log-likelihood, AIC, etc? 
+parameters.los.4e <- summary(gamma.los.4e)$estimate
+ 
+
+# # fit weibull: 
+# wbull.los.4e <- fitdist(los.4e.remove.na.neg, 
+#                         "weibull", 
+#                         method="mme")
+
+# fit lognormal: 
+lgnorm.los.4e <- fitdist(los.4e.remove.na.neg, 
+                         "lnorm")
+summary(lgnorm.los.4e)
+
+los.distributions <- list(gamma.los.4e, lgnorm.los.4e)
+
+setpar <- par(mfrow=c(2,2))  # save current par before changing it
+denscomp(los.distributions)  # not working? 
+qqcomp(los.distributions)
+cdfcomp(los.distributions)
+ppcomp(los.distributions)
+par(setpar)  # reset par
+
+
+# try plotting the gamma and lnorm dist: 
+x <- seq(0.1, max(los.4e, na.rm=TRUE), .1)
+hx <- dgamma(x, shape = parameters.los.4e[1], rate=parameters.los.4e[2])
+gx <- dlnorm(x, meanlog = 1.637, sdlog = 1.265)
+
+dist <- data.frame(x=x, value=c(hx, gx), 
+                   fn=rep(c("gamma", "lnorm"),
+                          each=length(hx)))
+
+ggplot(dist, aes(x=x, y=value, col=fn)) + 
+      geom_point() + 
+      # facet_wrap(~fn) + 
+      scale_x_continuous(limits = c(0,85))
+
+#******************************
 # > Extract arrival timestamps: ------------
 arrivals.4e <- lapply(split.losdata.4e, arrival.fn, 
                       nursingunit = "4E")
@@ -92,24 +142,24 @@ descdist(interarrivals.4e[!is.na(interarrivals.4e)],  # remove NA values
          boot=1000)  # possibly beta??
 
 # fit exponential dist: 
-exp.4e <- fitdist(interarrivals.4e[!is.na(interarrivals.4e)],
+exp.arrival.4e <- fitdist(interarrivals.4e[!is.na(interarrivals.4e)],
                   "exp")
-summary(exp.4e)  # rate parameter, lambda = 0.0033249 
-lambda.4e <- summary(exp.4e)$estimate
+summary(exp.arrival.4e)  # rate parameter, lambda = 0.0033249 
+lambda.arrival.4e <- summary(exp.arrival.4e)$estimate
 # rpois(100000, lambda.4e*60) %>% hist
 # ^ given this rate paramter for interarrivals (in minutes), we expect 
 # the number of arrivals in 60 minutes to be between 0 and 3
 
 # diagnostics: 
 setpar <- par(mfrow=c(2,2))  # save current par before changing it
-denscomp(exp.4e)
-qqcomp(exp.4e)
-cdfcomp(exp.4e)
-ppcomp(exp.4e)
+denscomp(exp.arrival.4e)
+qqcomp(exp.arrival.4e)
+cdfcomp(exp.arrival.4e)
+ppcomp(exp.arrival.4e)
 par(setpar)  # reset par 
 
-gofstat(exp.4e)  # KS stat prob not in rejection region: i.e. fail to reject
-                 # exponential dist
+gofstat(exp.arrival.4e)  # KS stat prob not in rejection region (??): 
+                         # i.e. fail to reject exponential dist
 
 
 # ******************************

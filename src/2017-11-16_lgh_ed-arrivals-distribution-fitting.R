@@ -10,6 +10,9 @@ library("dgof")
 
 # rm(list=ls())
 
+#**********************************
+# Example: using ks.test() function to test goodness-of-fit --------- 
+#**********************************
 
 # reference distribution: 
 ref.poisson <- rpois(1000, 8)
@@ -20,7 +23,7 @@ ggplot(data.frame(pois.rv=ref.poisson), aes(x=pois.rv)) +
 
 
 # df with poisson means calculated from data 
-df <- data.frame(pois.mean=c(70.5, 8.1, 18.2))
+df <- data.frame(pois.mean=c(7.5, 8.1, 18.2))
 
 # generate a separate distribution for each row of df: 
 pois.distributions <- lapply(df$pois.mean, rpois, n=1000) # %>% str
@@ -37,21 +40,7 @@ par(setpar)
 
 
 
-# test goodness-of-fit with reference dist: ---------
-
-# try chi-square test: 
-# chisq.test(table(pois.distributions[[1]], ref.poisson))
-# chisq.test(pois.distributions[[2]], ref.poisson)
-# ^^ chisq test not applicable for discrete distributions? 
-
-# Cramer-von Mises test: 
-# cvm.test(pois.distributions[[1]], ecdf(ref.poisson))
-# cvm.test(pois.distributions[[2]], ecdf(ref.poisson))
-# cvm.test(pois.distributions[[3]], ecdf(ref.poisson))
-# 
-# lapply(pois.distributions, cvm.test, y=ecdf(ref.poisson))
-
-
+# > test goodness-of-fit with reference dist: ---------
 # Kolmogorov-Smirnov test: 
 # H0: distributions are the same
 # reject H0 if p value is small 
@@ -61,3 +50,10 @@ dgof::ks.test(pois.distributions[[3]], ecdf(ref.poisson))  # reject H0
 
 # get results of above 3 lines at once: 
 lapply(pois.distributions, ks.test, y=ecdf(ref.poisson))
+
+
+# > plot final 2 distributions: ----
+setpar <- par(mfrow=c(1, 2))
+hist(ref.poisson)
+hist(pois.distributions[[2]])
+par(setpar)

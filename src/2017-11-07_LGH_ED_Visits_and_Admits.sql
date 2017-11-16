@@ -1,17 +1,17 @@
---set time range for desired data
-Drop Table #DataTimeRange
+--drop temp tables: 
+if object_id('tempdb.dbo.#DataTimeRange') is not null Drop Table #DataTimeRange; 
+if object_id('tempdb.dbo.#EDVisits') is not null Drop Table EDVisits; 
+if object_id('tempdb.dbo.#EDVisitsWithElapsedMinutes') is not null Drop Table #EDVisitsWithElapsedMinutes; 
 
+--set time range for desired data
 Select 
 	'2014-04-01' StartDate, 
 	'2017-11-02' EndDate
 into #DataTimeRange
 
-Select * from #DataTimeRange
-
+--Select * from #DataTimeRange
 
 --identify all ED visits 
-drop table #EDVisits
-
 select 
 VisitID
 , StartDate, StartTime --StartDate + StartTime as StartDateTime
@@ -23,18 +23,18 @@ VisitID
 , DischargeDispositionCode
 , InpatientNursingUnitID
 , InpatientNursingUnitName
+, InpatientServiceDADDescription
+, InpatientServiceGroup
 , TriageAcuityCode
 into #EDVisits
-from EDMart.[dbo].[vwEDVisitIdentifiedLGH] 
+from EDMart.[dbo].[vwEDVisitIdentifiedRegional] 
 where StartDate between (select StartDate from #DataTimeRange) and (select EndDate from #DataTimeRange)
 and FacilityLongName = 'Lions Gate Hospital'
 Order by VisitID
 
-Select * from #EDVisits
+--Select * from #EDVisits
 
 --adding in interarrival time for ED visits
-drop table #EDVisitsWithElapsedMinutes
-
 select 
 E.*
 , DayofWeek StartDateDayOfWeek
@@ -68,3 +68,28 @@ from #EDVisitsWithElapsedMinutes E
 inner join EDMart.dim.Location L on E.InpatientNursingUnitID = L.LocationID
 where AdmittedFlag = 1
 and LocationCode in ('4E', '6E', '6W', '7E', 'IPS', '4W')
+
+--Distribution of admits into nursing units from ED
+Select 
+LocationCode
+, count(visitid) as NumOfAdmits
+, count(visitid)*1.0/(select count(*) from #EDVisitsWithElapsedMinutes where AdmittedFlag = 1) as AdmitRate
+from #EDVisitsWithElapsedMinutes E
+inner join EDMart.dim.Location L on E.InpatientNursingUnitID = L.LocationID
+where AdmittedFlag = 1
+group by LocationCode
+order by LocationCode
+
+--distribution of inpatient services from ed 
+Select 
+	InpatientServiceGroup as PatientServiceGroup
+	, InpatientServiceDADDescription as PatientService
+	, count(visitid) as [Count]
+	, count(visitid)*1.0/(select count(*) from #EDVisitsWithElapsedMinutes where AdmittedFlag = 1) 
+		as [Percent]
+from #EDVisitsWithElapsedMinutes E
+	inner join EDMart.dim.Location L on E.InpatientNursingUnitID = L.LocationID
+where AdmittedFlag = 1
+group by InpatientServiceGroup, InpatientServiceDADDescription
+order by InpatientServiceGroup, InpatientServiceDADDescription; 
+

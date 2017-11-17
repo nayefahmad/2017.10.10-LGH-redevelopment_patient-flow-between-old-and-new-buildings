@@ -28,14 +28,10 @@ df <- data.frame(pois.mean=c(7.5, 8.1, 18.2))
 # generate a separate distribution for each row of df: 
 pois.distributions <- lapply(df$pois.mean, rpois, n=1000) # %>% str
 
-# function to plot all the distributions: 
-plotdists <- function(vector.of.vars){
-      hist(vector.of.vars)
-}
 
 # plot the distributions:  
 setpar <- par(mfrow=c(length(pois.distributions), 1))
-lapply(pois.distributions, plotdists)
+lapply(pois.distributions, hist)
 par(setpar)
 
 

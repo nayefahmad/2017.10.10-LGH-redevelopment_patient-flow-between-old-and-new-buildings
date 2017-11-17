@@ -13,8 +13,6 @@ library("fitdistrplus")
 
 # Todo: -------------------
 # > why 58 NAs for 4E data? 
-# > get arrival timestamps, interarrivals for 6E, 6W, 7E
-# > all analysis for 7E 
 # > endpoints in subtitles of graphs: 2017-10-10? 
 # > check KS statistics of dist. fitting 
 # ******************************
@@ -30,7 +28,6 @@ source("los_function.R")
 source("arrival-timestamp_function.R")
 
 
-# ******************************
 
 
 # ******************************
@@ -259,6 +256,39 @@ table.6w <- table(los.6w) %>% as.data.frame
 
 
 # ******************************
+# Analysis for 7E ---------------
+# ******************************
+
+# LOS calculation:
+# split data by unique encounter: 
+split.losdata.7e <- split(losdata.7e, losdata.7e$id)
+# str(split.losdata)
+
+# apply los.fn, then combine results into a vector: 
+los.7e <- 
+      lapply(split.losdata.7e, los.fn, 
+             nursingunit = "7E")  %>%  # nursingunit is passed to los.fn
+      unlist %>% unname 
+str(los.7e)
+summary(los.7e)
+
+
+los.7e.df <- as.data.frame(los.7e)  # easier to work with in ggplot 
+str(los.7e.df)
+
+# tables of results: 
+summary.7e <- 
+      summarise(los.7e.df,
+                unit="7E", 
+                mean=mean(los.7e, na.rm=TRUE), 
+                median=quantile(los.7e, probs = .50, na.rm=TRUE), 
+                x90th.perc=quantile(los.7e, probs = .90, na.rm=TRUE))
+
+table.7e <- table(los.7e) %>% as.data.frame
+
+
+
+# ******************************
 # Plotting with ggplot: ------------
 # ******************************
 
@@ -408,11 +438,41 @@ p4_hist.6w <-
 
 
 
+
+# > Graph for 7E: --------------
+p6_hist.7e <- 
+      ggplot(los.7e.df, 
+             aes(x=los.7e)) + 
+      geom_histogram(stat="bin", 
+                     binwidth = 1, 
+                     col="black", 
+                     fill="deepskyblue") + 
+      
+      scale_x_continuous(limits=c(-1,85), 
+                         breaks=seq(0,85,5), 
+                         expand=c(0,0)) + 
+      scale_y_continuous(expand=c(0,0)) + 
+      
+      labs(x="LOS in days", 
+           y="Number of cases", 
+           title="Distribution of LOS in LGH 7E", 
+           subtitle="From 2014-04-01 onwards \nMedian = 3.5 days; Mean = 10.0 days; ", 
+           caption= "\nData source: DSDW ADTCMart; extraction date: 2017-11-17") + 
+      
+      geom_vline(xintercept = summary.7e[,2], 
+                 col="red") + 
+      
+      geom_vline(xintercept = summary.7e[,3], 
+                 col="red", 
+                 linetype=2) + 
+      
+      theme_classic(base_size = 16); p6_hist.7e
+
+
+
+
+
 # *******************************************
-
-
-
-
 # Save outputs: ---------------
 
 pdf(file="\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.10 LGH redevelopment - patient flow between old and new buildings/results/output from src/2017-10-11_los-histogram-2015-2017.pdf", 
@@ -421,13 +481,15 @@ p1_hist.4e
 p2_hist.4w
 p3_hist.6e
 p4_hist.6w
+p6_hist.7e
 dev.off()
 
 # single summary table: 
 write.csv(rbind(summary.4e, 
                 summary.4w, 
                 summary.6e, 
-                summary.6w),
+                summary.6w, 
+                summary.7e),
           file="\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.10 LGH redevelopment - patient flow between old and new buildings/results/output from src/2017-10-11_LGH_summary-of-LOS.csv", 
           row.names = FALSE)
 
@@ -447,6 +509,10 @@ write.csv(table.6e, file="\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow
 
 # histogram data, 6W: 
 write.csv(table.6w, file="\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.10 LGH redevelopment - patient flow between old and new buildings/results/output from src/2017-10-11_LGH_histogram-table_6W.csv", 
+          row.names = FALSE)
+
+# histogram data, 7E: 
+write.csv(table.7e, file="\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.10 LGH redevelopment - patient flow between old and new buildings/results/output from src/2017-11-17_LGH_histogram-table_7E.csv", 
           row.names = FALSE)
 
 

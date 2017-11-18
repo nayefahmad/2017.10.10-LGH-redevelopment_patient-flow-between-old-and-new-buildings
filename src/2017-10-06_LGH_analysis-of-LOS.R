@@ -12,7 +12,6 @@ library("fitdistrplus")
 
 
 # Todo: -------------------
-# > why 58 NAs for 4E data? 
 # > endpoints in subtitles of graphs: 2017-10-10? 
 # > check KS statistics of dist. fitting 
 # ******************************
@@ -99,18 +98,18 @@ par(setpar)  # reset par
 
 
 # try plotting the gamma and lnorm dist: 
-x <- seq(0.1, max(los.4e, na.rm=TRUE), .1)
-hx <- dgamma(x, shape = parameters.los.4e[1], rate=parameters.los.4e[2])
-gx <- dlnorm(x, meanlog = 1.637, sdlog = 1.265)
-
-dist <- data.frame(x=x, value=c(hx, gx), 
-                   fn=rep(c("gamma", "lnorm"),
-                          each=length(hx)))
-
-ggplot(dist, aes(x=x, y=value, col=fn)) + 
-      geom_point() + 
-      # facet_wrap(~fn) + 
-      scale_x_continuous(limits = c(0,85))
+# x <- seq(0.1, max(los.4e, na.rm=TRUE), .1)
+# hx <- dgamma(x, shape = parameters.los.4e[1], rate=parameters.los.4e[2])
+# gx <- dlnorm(x, meanlog = 1.637, sdlog = 1.265)
+# 
+# dist <- data.frame(x=x, value=c(hx, gx), 
+#                    fn=rep(c("gamma", "lnorm"),
+#                           each=length(hx)))
+# 
+# ggplot(dist, aes(x=x, y=value, col=fn)) + 
+#       geom_point() + 
+#       # facet_wrap(~fn) + 
+#       scale_x_continuous(limits = c(0,85))
 
 #******************************
 # > Extract arrival timestamps: ------------
@@ -285,6 +284,41 @@ summary.7e <-
                 x90th.perc=quantile(los.7e, probs = .90, na.rm=TRUE))
 
 table.7e <- table(los.7e) %>% as.data.frame
+
+
+
+
+# ******************************
+# Analysis for IPS: ---------------
+# ******************************
+
+# LOS calculation:
+# split data by unique encounter: 
+split.losdata.ips <- split(losdata.ips, losdata.ips$id)
+# str(split.losdata)
+
+# apply los.fn, then combine results into a vector: 
+los.ips <- 
+      lapply(split.losdata.ips, los.fn, 
+             nursingunit = "IPS")  %>%  # nursingunit is passed to los.fn
+      unlist %>% unname 
+str(los.ips)
+summary(los.ips)
+
+
+los.ips.df <- as.data.frame(los.ips)  # easier to work with in ggplot 
+str(los.ips.df)
+
+# tables of results: 
+summary.ips <- 
+      summarise(los.ips.df,
+                unit="IPS", 
+                mean=mean(los.ips, na.rm=TRUE), 
+                median=quantile(los.ips, probs = .50, na.rm=TRUE), 
+                x90th.perc=quantile(los.ips, probs = .90, na.rm=TRUE))
+
+table.ips <- table(los.ips) %>% as.data.frame
+
 
 
 
@@ -470,6 +504,38 @@ p6_hist.7e <-
 
 
 
+# > Graph for IPS: --------------
+p7_hist.ips <- 
+      ggplot(los.ips.df, 
+             aes(x=los.ips)) + 
+      geom_histogram(stat="bin", 
+                     binwidth = .1, 
+                     col="black", 
+                     fill="deepskyblue") + 
+      
+      scale_x_continuous(limits=c(-.1,1), 
+                         breaks=seq(0,1,0.1), 
+                         expand=c(0,0)) + 
+      scale_y_continuous(expand=c(0,0)) + 
+      
+      labs(x="LOS in days", 
+           y="Number of cases", 
+           title="Distribution of LOS in LGH IPS", 
+           subtitle="From 2014-04-01 onwards \nMedian = 0.3 days; Mean = 0.3 days; ", 
+           caption= "\nData source: DSDW ADTCMart; extraction date: 2017-11-17") + 
+      
+      geom_vline(xintercept = summary.ips[,2], 
+                 col="red") + 
+      
+      geom_vline(xintercept = summary.ips[,3], 
+                 col="red", 
+                 linetype=2) + 
+      
+      theme_classic(base_size = 16); p7_hist.ips
+
+
+
+
 
 
 # *******************************************
@@ -482,6 +548,7 @@ p2_hist.4w
 p3_hist.6e
 p4_hist.6w
 p6_hist.7e
+p7_hist.ips
 dev.off()
 
 # single summary table: 
@@ -489,7 +556,8 @@ write.csv(rbind(summary.4e,
                 summary.4w, 
                 summary.6e, 
                 summary.6w, 
-                summary.7e),
+                summary.7e, 
+                summary.ips),
           file="\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.10 LGH redevelopment - patient flow between old and new buildings/results/output from src/2017-10-11_LGH_summary-of-LOS.csv", 
           row.names = FALSE)
 
@@ -501,7 +569,6 @@ write.csv(table.4e, file="\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow
 # histogram data, 4W: 
 write.csv(table.4w, file="\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.10 LGH redevelopment - patient flow between old and new buildings/results/output from src/2017-10-11_LGH_histogram-table_4W.csv", 
           row.names = FALSE)
-
 
 # histogram data, 6E: 
 write.csv(table.6e, file="\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.10 LGH redevelopment - patient flow between old and new buildings/results/output from src/2017-10-11_LGH_histogram-table_6E.csv", 
@@ -515,6 +582,9 @@ write.csv(table.6w, file="\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow
 write.csv(table.7e, file="\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.10 LGH redevelopment - patient flow between old and new buildings/results/output from src/2017-11-17_LGH_histogram-table_7E.csv", 
           row.names = FALSE)
 
+# histogram data, IPS: 
+write.csv(table.ips, file="\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.10 LGH redevelopment - patient flow between old and new buildings/results/output from src/2017-11-17_LGH_histogram-table_IPS.csv", 
+          row.names = FALSE)
 
 #*****************************
 # interarrivals, 4E: 

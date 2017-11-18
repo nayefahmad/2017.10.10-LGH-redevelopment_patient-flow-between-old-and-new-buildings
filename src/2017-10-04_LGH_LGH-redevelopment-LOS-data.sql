@@ -5,23 +5,19 @@
 
 ----------------------------------------
 --TODO: 
--- check whether LOSDays numrows equals num unique visits in #unitresults (from R code)
--- > 4W: FALSE 1530 <> 1517
--- > 4E: FALSE 6218 <> 6159
--- > 6E: FALSE 6693 <> 6632 
--- > 6W: FALSE 5714 <> 5661 
+-- > parametrize start and end dates 
 ----------------------------------------
 
 if object_id('tempdb.dbo.#unitresults') IS NOT NULL drop table #unitresults; 
 
 -- Pull all admits to specified Nursing Unit: ----------------------------------------
 -- Set desired Nursing Unit: 
-Declare @nursingunit as varchar(3) = '7E'; 
+Declare @nursingunit as varchar(3) = 'IPS'; 
 
 
-Select a.ContinuumID as [aContinuumID]
+Select a.ContinuumID as [a.ContinuumID]
 	, tr.ContinuumID as [tr.ContinuumID]
-	, a.AccountNumber as [aAccountNumber]
+	, a.AccountNumber as [AccountNumber]
 	, tr.AccountNum
 	, AdmissionNursingUnitCode
 	, AdmissionFiscalYear
@@ -55,7 +51,7 @@ order by AdmissionNursingUnitCode
 	, tr.TransferDate
 	, tr.TransferTime; 
 
-/*
+
 -- display results: 
 select * from #unitresults 
 order by AdmissionNursingUnitCode
@@ -63,10 +59,11 @@ order by AdmissionNursingUnitCode
 	, [AdjustedAdmissionTime]
 	, TransferDate
 	, TransferTime; 
-*/
+
 
 --Select count(distinct [aContinuumID]) from #unitresults
 ----------------------------------------
+/*
 -- Pull overall LOS for these same patients: 
 select distinct ad.ContinuumID 
 	, ad.AccountNumber
@@ -88,4 +85,4 @@ right join #unitresults r
 order by ad.AdmissionNursingUnitCode
 	, ad.AdjustedAdmissionDate; 
 
-
+*/

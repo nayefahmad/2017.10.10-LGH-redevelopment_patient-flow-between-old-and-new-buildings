@@ -138,3 +138,26 @@ losdata.7e <- clean.los(losdata.7e)  # NAs returned for pts not discharged yet
 write.csv(losdata.7e, file="\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.10 LGH redevelopment - patient flow between old and new buildings/results/output from src/2017-11-17_LGH_7E-LOS-reformatted.csv", 
           row.names = FALSE)
 
+
+
+
+#********************************
+# Cleaning IPS data: -----------
+#********************************
+
+losdata.ips <- read.csv("\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.10 LGH redevelopment - patient flow between old and new buildings/results/output from src/2017-11-17_LGH_IPS-LOS.csv", 
+                       na.strings = "NULL", 
+                       stringsAsFactors = TRUE) 
+
+losdata.ips <- clean.los(losdata.ips)  # NAs returned for pts not discharged yet
+
+# str(losdata.ips)
+# summary(losdata.ips)
+# summary(select(losdata.ips, 6:8))
+# head(losdata.ips)
+
+
+# save reformatted data: ----------------
+write.csv(losdata.ips, file="\\\\vch.ca/departments/Projects (Dept VC)/Patient Flow Project/Coastal HSDA/2017 Requests/2017.10.10 LGH redevelopment - patient flow between old and new buildings/results/output from src/2017-11-17_LGH_IPS-LOS-reformatted.csv", 
+          row.names = FALSE)
+

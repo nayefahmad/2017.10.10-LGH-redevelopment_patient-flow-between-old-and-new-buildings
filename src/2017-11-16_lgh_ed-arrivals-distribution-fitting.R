@@ -15,7 +15,9 @@ library("dgof")
 #**********************************
 
 # reference distribution: 
-ref.poisson <- rpois(1000, 8)
+#ref.poisson <- rpois(1000, 8)
+ref.poisson <- (0.078599222, 0.151750973, 0.212451362, 0.20077821, 0.158754864, 0.102723735, 0.052918288, 0.026459144, 0.010116732, 0.00155642, 0.003891051)
+
 str(ref.poisson); summary(ref.poisson)
 ggplot(data.frame(pois.rv=ref.poisson), aes(x=pois.rv)) + 
       geom_histogram(binwidth = 1)
@@ -33,6 +35,7 @@ pois.distributions <- lapply(df$pois.mean, rpois, n=1000) # %>% str
 setpar <- par(mfrow=c(length(pois.distributions), 1))
 lapply(pois.distributions, hist)
 par(setpar)
+
 
 
 

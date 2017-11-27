@@ -1,7 +1,7 @@
 
 
 #****************************************
-# Analysis of LOS data for 4E, 6E, 6W
+# Analysis of LOS data for 4E, 6E, 6W, 7E, IPS 
 #****************************************
 
 library("ggplot2")

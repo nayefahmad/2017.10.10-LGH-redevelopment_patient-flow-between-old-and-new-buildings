@@ -42,8 +42,8 @@ E.*
 , datediff(minute, lag(StartDate+StartTime) over (order by StartDate+StartTime), StartDate+StartTime) MinuteElapsed
 into #EDVisitsWithElapsedMinutes
 from #EDVisits E
-inner join EDMart.dim.Date D on E.StartDate = D.ShortDate 
-inner join EDMart.dim.Time T on E.StartTime = T.Time24Hr
+inner join ADTCMart.dim.Date D on E.StartDate = D.ShortDate 
+inner join ADTCMart.dim.Time T on E.StartTime = T.Time24Hr
 
 select * from #EDVisitsWithElapsedMinutes
 
@@ -61,6 +61,15 @@ from #EDVisitsWithElapsedMinutes
 group by StartTimeHourInterval
 order by StartTimeHourInterval
 
+--Admit Rate from ED
+select sum(cast(AdmittedFlag as int))*1.0/count(*) as EDAdmitRate from #EDVisitsWithElapsedMinutes
+
+--Admit Rate from ED by Hour of Day
+Select StartTimeHourInterval
+, sum(cast(AdmittedFlag as int))*1.0/count(*) as EDAdmitRate
+from #EDVisitsWithElapsedMinutes
+group by StartTimeHourInterval
+order by StartTimeHourInterval
 
 --Admits from ED into 4E, 6E, 6W, 7E, IPS, 4W
 Select E.* 
@@ -75,7 +84,7 @@ LocationCode
 , count(visitid) as NumOfAdmits
 , count(visitid)*1.0/(select count(*) from #EDVisitsWithElapsedMinutes where AdmittedFlag = 1) as AdmitRate
 from #EDVisitsWithElapsedMinutes E
-inner join EDMart.dim.Location L on E.InpatientNursingUnitID = L.LocationID
+inner join ADTCMart.dim.Location L on E.InpatientNursingUnitID = L.LocationID
 where AdmittedFlag = 1
 group by LocationCode
 order by LocationCode

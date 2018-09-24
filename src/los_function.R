@@ -24,9 +24,10 @@
 
 los.fn <- function(df, nursingunit){
       # inputs:
-            # dataframe with all rows of single patient-account combo 
-            # nursingunitcode as character string 
-      # output: LOS in 4E in days 
+            # > dataframe with all rows of single patient-account combo 
+                  # (e.g. first row is for first unit entered and first transfer, second row is for second transfer, etc.)
+            # > nursingunitcode as character string 
+      # output: LOS in specified nursing unit in days for this patient encounter
       
       require("dplyr")
       require("tidyr")
@@ -37,19 +38,27 @@ los.fn <- function(df, nursingunit){
                     ad.dtime, t.dtime)
       # print(df)
       # df$ad.unitcode
+      
+      # find LOS, based on appropriate start point and end point in the 
+      #     specified nursing unit (e.g. is the end point a transfer or a discharge?; 
+      #     is the start point an admission or a transfer-in?)
+      
+      # Branch 1: 
       if (df$ad.unitcode[1] == nursingunit && is.na(df$t.dtime[1] == TRUE)) {
             # patient type: ad and dis from 4E, no transfers 
             # print("branch1")
             difftime <- df$dis.dtime - df$ad.dtime
             return(as.numeric(difftime, units="days"))
-            
+      
+      # Branch 2:       
       } else if (df$ad.unitcode[1] == nursingunit && df$to.unit != nursingunit){
             # patient type: admit to 4E, transferred out of 4E, 
             # no internal transfers in 4E 
             # print("branch2")
             difftime <- df$t.dtime[1] - df$ad.dtime[1]
             return(as.numeric(difftime, units="days"))
-            
+      
+      # Branch 3: 
       } else if (df$ad.unitcode[1] == nursingunit && df$to.unit == nursingunit){
             # patient type: admit to 4E, internal transfer in 4E
             index <- df$to.unit != nursingunit  
@@ -67,6 +76,7 @@ los.fn <- function(df, nursingunit){
                   return(as.numeric(difftime, units="days"))
             }
             
+      # Branch 4: 
       } else if (df$ad.unitcode[1] != nursingunit && df$to.unit == nursingunit) {
             # patient type: admit to other, transferred to 4E 
             index <- df$to.unit != nursingunit  
